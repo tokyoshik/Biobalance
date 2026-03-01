@@ -111,7 +111,55 @@
     </div>
 </div>
 
-<hr style="margin: 40px 0; border: 0; border-top: 1px solid #E8E1D5;">
+
+    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #E8E1D5;">
+<section id="vitamin-quiz" style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--beige); box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h2 style="margin-top: 0;">Какой витамин нужен вам прямо сейчас?</h2>
+    <p style="font-size: 14px; color: #666;">Ответьте на 1 вопрос, чтобы получить персональную рекомендацию от BioBalance.</p>
+    
+    <div id="quiz-question" style="margin-bottom: 20px;">
+        <p style="font-weight: bold; margin-bottom: 15px;">Какая у вас главная цель?</p>
+        <button onclick="showResult('sleep')" style="display:block; width:100%; margin-bottom:10px; padding:12px; border:1px solid var(--green); background:transparent; color:var(--green); border-radius:6px; cursor:pointer; font-size: 16px;">Улучшить сон и снять стресс</button>
+        <button onclick="showResult('energy')" style="display:block; width:100%; margin-bottom:10px; padding:12px; border:1px solid var(--green); background:transparent; color:var(--green); border-radius:6px; cursor:pointer; font-size: 16px;">Больше энергии с утра</button>
+        <button onclick="showResult('immunity')" style="display:block; width:100%; padding:12px; border:1px solid var(--green); background:transparent; color:var(--green); border-radius:6px; cursor:pointer; font-size: 16px;">Поддержать иммунитет</button>
+    </div>
+
+    <div id="quiz-result" style="display: none; text-align: center; padding: 15px; background: #FDFBF7; border-radius: 8px; border: 1px dashed var(--green);">
+        <h3 id="result-title" style="color: var(--green); margin-top: 0;"></h3>
+        <p id="result-text" style="font-size: 14px;"></p>
+        <button onclick="resetQuiz()" style="background: var(--beige); border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 12px;">Пройти заново</button>
+    </div>
+</section>
+
+<script>
+    // Логика работы квиза
+    function showResult(goal) {
+        document.getElementById('quiz-question').style.display = 'none';
+        document.getElementById('quiz-result').style.display = 'block';
+        
+        let title = '';
+        let text = '';
+        
+        if (goal === 'sleep') {
+            title = 'Ваш выбор: Магний Глицинат';
+            text = 'Магний расслабит нервную систему. Принимайте 200-400 мг за 1-2 часа до сна. Избегайте формы "Оксид".';
+        } else if (goal === 'energy') {
+            title = 'Ваш выбор: Витамины группы B + Омега-3';
+            text = 'Комплекс B-витаминов запустит метаболизм, а качественная Омега-3 поддержит работу мозга и сосудов.';
+        } else if (goal === 'immunity') {
+            title = 'Ваш выбор: Витамин D3 + K2';
+            text = 'База для иммунитета. Обязательно принимайте их вместе во время плотного завтрака с полезными жирами.';
+        }
+        
+        document.getElementById('result-title').innerText = title;
+        document.getElementById('result-text').innerText = text;
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-question').style.display = 'block';
+        document.getElementById('quiz-result').style.display = 'none';
+    }
+</script><hr style="margin: 40px 0; border: 0; border-top: 1px solid #E8E1D5;">
 
 <section style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--beige);">
     <h3>Сотрудничество и реклама</h3>
