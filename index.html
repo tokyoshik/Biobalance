@@ -58,19 +58,19 @@
         .input-ui label { display: block; font-size: 11px; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
         .input-ui input, .input-ui select { width: 100%; padding: 18px; background: #222; border: 2px solid var(--accent); color: #fff; font-size: 18px; border-radius: 0; outline: none; }
 
-        /* МАКСИМАЛЬНО ЗАМЕТНЫЙ ДИСКЛЕЙМЕР */
+        /* ИСПРАВЛЕННЫЙ ТЕКСТ В ПОДВАЛЕ — МАКСИМАЛЬНАЯ ВИДИМОСТЬ */
         .safe-notice { 
-            font-size: 13px; 
+            font-size: 14px; 
             line-height: 1.6; 
-            color: #FFFFFF; /* Чисто белый цвет */
+            color: #FFFFFF !important; /* Принудительно белый цвет */
             text-align: left; 
             max-width: 900px; 
             margin: 0 auto;
-            border: 2px solid #FFFFFF; /* Белая рамка */
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.05); /* Легкий отсвет внутри */
+            border: 2px solid #FFFFFF; 
+            padding: 30px;
+            font-weight: 400;
         }
-        .safe-notice strong { color: #FFFFFF; text-decoration: underline; }
+        .safe-notice strong { color: #FFFFFF !important; font-weight: 900; text-transform: uppercase; text-decoration: underline; }
 
         @media (max-width: 1000px) {
             .hero-grid { grid-template-columns: 1fr; }
@@ -134,7 +134,7 @@
                     <div id="res-box" style="display: none; margin-top: 40px; border-top: 2px solid #444; padding-top: 20px;">
                         <span style="font-size: 14px; text-transform: uppercase; color: var(--accent);">Твой суточный расход (TDEE):</span>
                         <div id="bmr-val" style="font-size: 60px; font-weight: 900; color: var(--accent); margin-bottom: 15px;">0</div>
-                        <p style="font-size: 11px; color: #FFFFFF; font-style: italic; opacity: 0.8;">Результат является ориентировочным и носит ознакомительный характер. Мы не рекомендуем использовать эти данные для медицинских целей.</p>
+                        <p style="font-size: 11px; color: #FFFFFF; font-style: italic;">Результат носит ознакомительный характер.</p>
                     </div>
                 </div>
                 <div>
@@ -161,7 +161,7 @@
                     <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80" class="post-img" alt="Magnesium Supplements">
                     <div class="post-body">
                         <h3>Магний для сна: разбор всех форм</h3>
-                        <p style="font-size: 15px; margin: 15px 0; flex-grow: 1;">Почему глицинат — это золото, а оксид только вредит вашему желудку. Инструкция.</p>
+                        <p style="font-size: 15px; margin: 15px 0; flex-grow: 1;">Почему глицинат — это золото, а оксид только вредит вашему желудку.</p>
                         <a href="#" class="btn" style="padding: 15px 25px; font-size: 12px; width: 100%;">Скоро будет</a>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                     <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80" class="post-img" alt="Fibermaxxing">
                     <div class="post-body">
                         <h3>Тренд 2026: Fibermaxxing</h3>
-                        <p style="font-size: 15px; margin: 15px 0; flex-grow: 1;">Как 30 грамм клетчатки в день меняют твой мозг, фокус и уровень энергии.</p>
+                        <p style="font-size: 15px; margin: 15px 0; flex-grow: 1;">Как 30 грамм клетчатки в день меняют твой мозг и фокус.</p>
                         <a href="#" class="btn" style="padding: 15px 25px; font-size: 12px; width: 100%;">Скоро будет</a>
                     </div>
                 </div>
@@ -180,7 +180,7 @@
     <section id="contact">
         <div class="container" style="text-align: center;">
             <h2 style="font-size: clamp(32px, 10vw, 90px); letter-spacing: -5px;">PARTNERSHIP.</h2>
-            <p style="max-width: 800px; margin: 0 auto 50px;">Мы открыты для сотрудничества с брендами, которые ценят научный подход.</p>
+            <p style="max-width: 800px; margin: 0 auto 50px;">Мы открыты для сотрудничества.</p>
             <div style="border: 5px solid var(--black); padding: 40px; display: inline-block; font-weight: 900; font-size: clamp(16px, 4vw, 36px); background: #fff; box-shadow: 15px 15px 0px #000;">
                 TTOKYOSHIK@GMAIL.COM
             </div>
@@ -194,9 +194,9 @@
         
         <div class="safe-notice">
             <p style="margin-bottom: 20px;"><strong>ЮРИДИЧЕСКИЙ ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ:</strong> Контент на этом сайте (включая расчеты калькулятора и статьи) предоставлен только для образовательных и ознакомительных целей. HEALTHLOGIC не является медицинской организацией. Мы не даем профессиональных медицинских советов, не ставим диагнозы и не лечим заболевания.</p>
-            <p style="margin-bottom: 20px;">Использование любых данных с этого ресурса осуществляется на ваш собственный страх и риск. Администрация проекта не несет ответственности за любые негативные последствия для вашего здоровья, возникшие в результате следования рекомендациям. Перед любым действием — будь то прием БАД или смена режима тренировок — <strong>ОБЯЗАТЕЛЬНО ПРОКОНСУЛЬТИРУЙТЕСЬ С ВРАЧОМ.</strong></p>
-            <p style="font-size: 11px; color: #888; border-top: 1px solid #444; padding-top: 15px;">© 2026 HEALTHLOGIC. Независимое медиа о здоровье и долголетии.</p>
+            <p style="margin-bottom: 0px;">Использование любых данных с этого ресурса осуществляется на ваш собственный страх и риск. Администрация проекта не несет ответственности за любые негативные последствия для вашего здоровья, возникшие в результате следования рекомендациям. Перед любым действием — будь то прием БАД или смена режима тренировок — <strong>ОБЯЗАТЕЛЬНО ПРОКОНСУЛЬТИРУЙТЕСЬ С ВРАЧОМ.</strong></p>
         </div>
+        <p style="font-size: 10px; color: #444; margin-top: 30px;">© 2026 HEALTHLOGIC. Независимое медиа.</p>
     </div>
 </footer>
 
@@ -216,5 +216,5 @@
 </script>
 
 </body>
-                        </html>
-                        
+                                               </html>
+    
