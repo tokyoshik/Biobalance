@@ -1,141 +1,620 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!-- 
+        PROJECT: BioBalance Pro Max - Enterprise Edition
+        VERSION: 3.0.1
+        DESCRIPTION: Professional Biohacking & Neurochemistry Information System
+        AUTHOR: Gemini AI
+    -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioBalance | Система Управления Биокапиталом</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BioBalance | Professional Neuro-Interface</title>
+    
+    <!-- Внешние шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary: #1B3022; --accent: #C5A059; --bg: #F4F9F4; --white: #FFFFFF; --text: #1A1A1A; --warning: #8b0000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; line-height: 1.8; }
-        .disclaimer-bar { background: var(--warning); color: white; padding: 10px; text-align: center; font-size: 11px; font-weight: bold; position: sticky; top: 0; z-index: 100; }
-        header { padding: 100px 20px; text-align: center; background: var(--white); border-bottom: 1px solid #eee; }
-        h1 { font-family: 'Playfair Display', serif; font-size: clamp(40px, 8vw, 80px); color: var(--primary); }
-        .container { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
-        .article { background: var(--white); border-radius: 40px; margin-bottom: 60px; padding: 45px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-        h2 { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 25px; color: var(--primary); }
-        .hook { font-size: 19px; color: #333; margin-bottom: 30px; border-left: 4px solid var(--accent); padding-left: 20px; font-weight: 400; }
-        .details { display: none; padding-top: 30px; border-top: 1px solid #eee; font-size: 16px; margin-top: 30px; animation: fadeIn 0.5s ease; }
-        .btn-more { background: none; border: 2px solid var(--accent); color: var(--accent); padding: 14px 35px; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: 0.3s; }
-        .btn-more:hover { background: var(--accent); color: white; }
-        .ai-zone { margin-top: 40px; padding: 25px; background: #fafafa; border-radius: 20px; border: 1px dashed #ccc; }
-        .ai-btn { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .ai-response { display: none; margin-top: 20px; padding: 20px; background: #fffdf2; border-radius: 15px; border-left: 5px solid var(--accent); font-size: 14px; line-height: 1.7; }
-        .calc-section { background: var(--primary); color: white; padding: 50px; border-radius: 40px; margin-bottom: 60px; }
-        input { width: 100%; padding: 18px; margin: 15px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: white; font-size: 16px; }
-        footer { background: #0a110c; color: #666; padding: 80px 20px; text-align: center; font-size: 12px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* ========================================
+           1. CSS VARIABLES & CORE SETUP
+           ========================================
+        */
+        :root {
+            /* Palette - Deep Forest & Luxury Gold */
+            --color-primary-dark: #0A110C;
+            --color-primary: #1B3022;
+            --color-primary-light: #2D4F39;
+            --color-accent: #C5A059;
+            --color-accent-hover: #D4B475;
+            --color-bg-main: #F4F9F4;
+            --color-bg-card: #FFFFFF;
+            --color-text-main: #1A1A1A;
+            --color-text-muted: #555555;
+            --color-white: #FFFFFF;
+            --color-error: #D32F2F;
+            
+            /* Typography */
+            --font-main: 'Montserrat', sans-serif;
+            --font-display: 'Playfair Display', serif;
+            --font-code: 'JetBrains Mono', monospace;
+            
+            /* Spacing & Borders */
+            --spacing-unit: 8px;
+            --border-radius-lg: 40px;
+            --border-radius-md: 20px;
+            --border-radius-sm: 12px;
+            
+            /* Shadows & Transitions */
+            --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.05);
+            --shadow-hard: 0 20px 60px rgba(0, 0, 0, 0.12);
+            --transition-standard: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Header Height */
+            --header-height: 80px;
+        }
+
+        /* ========================================
+           2. GLOBAL RESET & BASE STYLES
+           ========================================
+        */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--color-bg-main);
+            color: var(--color-text-main);
+            font-family: var(--font-main);
+            line-height: 1.8;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-standard);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            transition: var(--transition-standard);
+        }
+
+        /* ========================================
+           3. NAVIGATION SYSTEM (HEADER)
+           ========================================
+        */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--color-accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-primary);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--color-accent);
+            transition: var(--transition-standard);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .header-cta {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            padding: 12px 25px;
+            border-radius: var(--border-radius-sm);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-cta:hover {
+            background-color: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        /* ========================================
+           4. HERO SECTION
+           ========================================
+        */
+        .hero {
+            width: 100%;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 5% 60px;
+            background: radial-gradient(circle at top right, #e8f3e8 0%, #F4F9F4 100%);
+        }
+
+        .hero-content {
+            max-width: 1200px;
+        }
+
+        .hero-label {
+            display: inline-block;
+            color: var(--color-accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-size: 14px;
+            margin-bottom: 30px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(50px, 10vw, 110px);
+            line-height: 1;
+            color: var(--color-primary-dark);
+            margin-bottom: 40px;
+            letter-spacing: -3px;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .hero-desc {
+            max-width: 800px;
+            margin: 0 auto 50px;
+            font-size: 20px;
+            color: var(--color-text-muted);
+            animation: fadeInUp 1.4s ease;
+        }
+
+        /* ========================================
+           5. MAIN CONTENT LAYOUT
+           ========================================
+        */
+        .main-wrapper {
+            width: 100%;
+            max-width: 1800px; /* Расширяем обхват экрана */
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 40px;
+            margin-bottom: 100px;
+        }
+
+        .content-main {
+            grid-column: span 8;
+        }
+
+        .sidebar {
+            grid-column: span 4;
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        /* ========================================
+           6. ARTICLE CARDS (ADVANCED)
+           ========================================
+        */
+        .article-card {
+            background: var(--color-bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: 60px;
+            margin-bottom: 60px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: var(--transition-standard);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card:hover {
+            box-shadow: var(--shadow-hard);
+            transform: translateY(-5px);
+        }
+
+        .article-tag {
+            background: var(--color-bg-main);
+            color: var(--color-primary);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+
+        .article-title {
+            font-family: var(--font-display);
+            font-size: 48px;
+            line-height: 1.1;
+            color: var(--color-primary-dark);
+            margin-bottom: 30px;
+        }
+
+        .article-hook {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            border-left: 5px solid var(--color-accent);
+            padding-left: 30px;
+        }
+
+        .article-body {
+            display: none;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .article-body p {
+            margin-bottom: 25px;
+            font-size: 17px;
+            color: var(--color-text-muted);
+        }
+
+        .btn-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--color-accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 13px;
+        }
+
+        .btn-toggle span {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-standard);
+        }
+
+        .btn-toggle:hover span {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        /* ========================================
+           7. INTERACTIVE TOOLS (CALCULATOR & TEST)
+           ========================================
+        */
+        .tool-box {
+            background: var(--color-primary);
+            color: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            padding: 60px;
+            margin-bottom: 60px;
+            box-shadow: var(--shadow-hard);
+        }
+
+        .tool-title {
+            font-family: var(--font-display);
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--color-accent);
+        }
+
+        .tool-desc {
+            opacity: 0.8;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: var(--border-radius-sm);
+            color: white;
+            font-family: var(--font-main);
+            font-size: 18px;
+            transition: var(--transition-standard);
+        }
+
+        .form-input:focus {
+            border-color: var(--color-accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--color-accent);
+            color: white;
+            padding: 22px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            background: var(--color-accent-hover);
+            transform: scale(1.02);
+        }
+
+        /* AI Result Output Area */
+        .ai-result {
+            display: none;
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius-md);
+            padding: 40px;
+            border-left: 6px solid var(--color-accent);
+            animation: fadeIn 0.6s ease;
+        }
+
+        .ai-result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--color-accent);
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .ai-result-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        /* ========================================
+           8. SIDEBAR ELEMENTS
+           ========================================
+        */
+        .sidebar-widget {
+            background: white;
+            border-radius: var(--border-radius-md);
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .widget-title {
+            font-family: var(--font-display);
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--color-primary);
+        }
+
+        .quick-links li {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .quick-links a {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .quick-links a:hover {
+            color: var(--color-accent);
+            padding-left: 10px;
+        }
+
+        /* ========================================
+           9. FOOTER & LEGAL
+           ========================================
+        */
+        .main-footer {
+            background-color: var(--color-primary-dark);
+            color: var(--color-white);
+            padding: 100px 5% 40px;
+            margin-top: 100px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 50px;
+            margin-bottom: 80px;
+        }
+
+        .footer-about h3 {
+            font-family: var(--font-display);
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-about p {
+            opacity: 0.6;
+            font-size: 14px;
+        }
+
+        .footer-legal {
+            grid-column: span 4;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .legal-notice {
+            font-size: 11px;
+            opacity: 0.4;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 2;
+        }
+
+        /* ========================================
+           10. ANIMATIONS
+           ========================================
+        */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ========================================
+           11. RESPONSIVE DESIGN
+           ========================================
+        */
+        @media (max-width: 1100px) {
+            .content-main, .sidebar { grid-column: span 12; }
+            .sidebar { position: relative; top: 0; }
+            .hero h1 { font-size: 60px; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .article-card { padding: 30px; }
+            .article-title { font-size: 32px; }
+            .hero h1 { font-size: 40px; }
+        }
+
     </style>
 </head>
 <body>
 
-<div class="disclaimer-bar">⚠️ ВНИМАНИЕ: ДАННЫЙ САЙТ НЕ ЯВЛЯЕТСЯ МЕДИЦИНСКИМ РЕСУРСОМ. ВСЯ ИНФОРМАЦИЯ ОЗНАКОМИТЕЛЬНАЯ.</div>
+    <!-- Навигация -->
+    <header class="main-header">
+        <a href="#" class="logo">Bio<span>Balance</span></a>
+        <nav class="nav-links">
+            <a href="#articles">Статьи</a>
+            <a href="#calculator">Калькулятор</a>
+            <a href="#tests">Тестирование</a>
+            <a href="#contact">Связь</a>
+        </nav>
+        <button class="header-cta" onclick="scrollToSection('calculator')">Начать анализ</button>
+    </header>
 
-<header>
-    <h1>BioBalance</h1>
-    <p style="letter-spacing: 6px; text-transform: uppercase; font-size: 12px; color: var(--accent); margin-top: 15px;">Интеллектуальная лаборатория саморазвития</p>
-</header>
-
-<div class="container">
-
-    <!-- Статья 1: Дофамин -->
-    <article class="article">
-        <h2>Дофаминовая десенситизация: Почему мир теряет вкус?</h2>
-        <div class="hook">
-            Задумывались ли вы, почему после часа бесконечного скроллинга ленты вы чувствуете себя не отдохнувшим, а опустошенным? Это явление называется «дофаминовой десенситизацией». Наш мозг, эволюционировавший в условиях дефицита, сегодня буквально тонет в океане дешевого удовольствия. Каждое уведомление, лайк или быстрый углевод — это микро-всплеск, который заставляет рецепторы снижать чувствительность. В итоге обычные радости жизни перестают приносить удовольствие, а воля превращается в ничто. Это не лень — это биохимия.
-        </div>
-        <button class="btn-more" onclick="toggle(this)">Развернуть подробности (450 слов) ↓</button>
-        <div class="details">
-            Дофамин долгое время считался «гормоном удовольствия», но на самом деле — это гормон ожидания и мотивации. Его главная роль — заставить вас встать с пещеры и найти еду или партнера. Однако современные алгоритмы соцсетей созданы так, чтобы эксплуатировать этот древний механизм. Когда стимуляция становится хронической, нейроны в полосатом теле мозга начинают уменьшать количество активных дофаминовых рецепторов. Мозгу нужно «прикрутить громкость», чтобы не сгореть от избытка сигналов. <br><br>
-            В результате возникает состояние, когда вам нужно всё больше контента, чтобы просто чувствовать себя нормально. Это прямой путь к ангедонии — неспособности радоваться простым вещам. Психиатр Анна Лембке в своей работе «Дофаминовая нация» описывает это как качели боли и удовольствия: перегружая чашу удовольствия, мы заставляем организм давить на чашу боли для восстановления баланса (гомеостаза). <br><br>
-            Как восстановить чувствительность? Основной метод — «дофаминовый пост» или протоколы осознанной скуки. Это не означает уход в монастырь, а создание зон, свободных от стимуляции. Минимум один час после пробуждения без телефона и один час до сна. Это позволяет префронтальной коре — центру вашего «Я» — вернуть контроль над лимбической системой. Исследования показывают, что 30-дневное ограничение искусственных стимулов способно вернуть уровень дофаминовых рецепторов к базовой норме, возвращая вкус к жизни и способность к глубокой концентрации.
-            <div class="ai-zone">
-                <button class="ai-btn" onclick="askAI(this, 'Сгенерируй пошаговый план выхода из дофаминовой зависимости на неделю на основе статьи')">Gemini: Составить ИИ-план выхода ✨</button>
-                <div class="ai-response"></div>
+    <!-- Главный экран -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <span class="hero-label">Advanced Bio-Intelligence</span>
+            <h1>Перезагрузите свой <span>Биологический потенциал</span></h1>
+            <p class="hero-desc">Персонализированная система анализа нейрохимии, когнитивных ритмов и физиологического баланса на базе искусственного интеллекта нового поколения.</p>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button class="btn-submit" style="width: auto; padding: 20px 40px;" onclick="scrollToSection('articles')">Изучить базу знаний</button>
+                <button class="btn-toggle" style="border: 1px solid #ccc; border-radius: 12px; padding: 0 30px;" onclick="scrollToSection('calculator')">Запустить калькулятор</button>
             </div>
         </div>
-    </article>
-
-    <!-- Калькулятор Энергии -->
-    <section class="calc-section">
-        <h2 style="color:var(--accent); text-align:center;">Биометрическая Лаборатория</h2>
-        <p style="text-align:center; opacity:0.8; margin-bottom: 20px;">Введите данные для получения ИИ-анализа вашего метаболизма.</p>
-        <input type="number" id="weight" placeholder="Ваш вес (кг)">
-        <input type="number" id="age" placeholder="Ваш возраст (лет)">
-        <button class="ai-btn" style="background:var(--accent);" onclick="runCalc()">Рассчитать через Gemini AI ✨</button>
-        <div id="calc-res" class="ai-response" style="display:block; color: black; background: white;">Результаты появятся здесь...</div>
     </section>
 
-    <!-- Статья 2: Сон -->
-    <article class="article">
-        <h2>Глимфатическая очистка: Как мозг «моется» во сне</h2>
-        <div class="hook">
-            Вы спите не для того, чтобы отдохнули мышцы — они прекрасно расслабляются и лежа. Сон нужен прежде всего вашему мозгу. Каждую ночь, пока вы находитесь в фазе глубокого сна, включается глимфатическая система — уникальный дренажный механизм, который буквально вымывает нейротоксичные отходы, накопленные за день. Если вы крадете у себя 2 часа сна, вы оставляете свой мозг «грязным». Это приводит к туману в мыслях, снижению IQ и накоплению белков, вызывающих Альцгеймер.
-        </div>
-        <button class="btn-more" onclick="toggle(this)">Читать научный разбор ↓</button>
-        <div class="details">
-            Открытие глимфатической системы в 2012 году перевернуло наше понимание сна. Исследователи из Университета Рочестера обнаружили, что во время сна пространство между нейронами увеличивается на 60%. Это позволяет спинномозговой жидкости (ликвору) свободно циркулировать и вымывать бета-амилоиды — «биологический мусор». Этот процесс происходит преимущественно во время стадии N3 (глубокий сон). <br><br>
-            Важно понимать: после 16-18 часов бодрствования когнитивные способности человека падают до уровня легкого алкогольного опьянения. Это происходит именно из-за накопления метаболитов. Глимфатическая система работает эффективно только при соблюдении трех условий. Во-первых, температура. Мозгу нужно охладиться на 1.5 градуса для входа в глубокую фазу. Во-вторых, темнота. Мелатонин — это не просто снотворное, а мощнейший антиоксидант, который защищает нейроны во время «мойки». <br><br>
-            Интересный факт: положение на боку способствует более эффективному лимфодренажу мозга по сравнению со сном на спине. Оптимизация сна — это не роскошь, а биологическая необходимость. Настройка циркадных ритмов (ложиться до 23:00) позволяет синхронизировать очистку мозга с пиками гормонального восстановления. Помните: один час сна до полуночи равен двум часам после по своей восстановительной силе для вашей психики.
-            <div class="ai-zone">
-                <button class="ai-btn" onclick="askAI(this, 'Как настроить режим сна для максимальной очистки мозга за 5 шагов?')">Gemini: Чек-лист по сну ✨</button>
-                <div class="ai-response"></div>
-            </div>
-        </div>
-    </article>
+    <!-- Основной контент -->
+    <main class="main-wrapper">
+        <div class="section-grid">
+            
+            <!-- Левая колонка: Статьи -->
+            <div class="content-main" id="articles">
+                
+                <!-- Статья 1 -->
+                <article class="article-card">
+                    <span class="article-tag">Нейробиология</span>
+                    <h2 class="article-title">Дофаминовая архитектура: Ловушка современного мира</h2>
+                    <div class="article-hook">
+                        Почему современные интерфейсы и социальные сети превращают нас в заложников «быстрых вознаграждений», и как это разрушает префронтальную кору нашего мозга? Мы исследуем механизмы нейропластичности в условиях гиперстимуляции.
+                    </div>
+                    
+                    <button class="btn-toggle" onclick="toggleArticle(this)">
+                        <span>+</span> Читать полное исследование
+                    </button>
 
-</div>
-
-<footer>
-    <div style="font-size:24px; color:white; font-family:'Playfair Display'; margin-bottom:15px;">BioBalance</div>
-    <p>Проект по изучению человеческого потенциала © 2026</p>
-    <p style="max-width:500px; margin:25px auto; opacity:0.5; font-size:10px;">
-        ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ: Использование данного сайта не заменяет консультацию врача. ИИ-ответы могут содержать ошибки. Всегда проверяйте информацию у специалистов.
-    </p>
-</footer>
-
-<script>
-    const apiKey = "";
-
-    function toggle(btn) {
-        const div = btn.nextElementSibling;
-        const isV = div.style.display === 'block';
-        div.style.display = isV ? 'none' : 'block';
-        btn.innerText = isV ? 'Развернуть подробности ↓' : 'Скрыть подробности ↑';
-    }
-
-    async function callGemini(prompt, system = "Ты - эксперт-биохакер. Отвечай кратко, по пунктам. В начале ВСЕГДА пиши: 'ВНИМАНИЕ: Ознакомительная информация'.") {
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: system }] }
-                })
-            });
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
-        } catch(e) { return "Ошибка API. Проверьте соединение."; }
-    }
-
-    async function askAI(btn, prompt) {
-        const resBox = btn.nextElementSibling;
-        resBox.style.display = 'block';
-        resBox.innerText = "ИИ анализирует статью и готовит ответ...";
-        resBox.innerText = await callGemini(prompt);
-    }
-
-    async function runCalc() {
-        const res = document.getElementById('calc-res');
-        const w = document.getElementById('weight').value;
-        const a = document.getElementById('age').value;
-        if(!w) { alert("Введите данные!"); return; }
-        res.innerText = "Анализирую ваши показатели через нейросеть...";
-        res.innerText = await callGemini(`Пользователь весом ${w}кг и возрастом ${a}лет. Рассчитай примерный базовый обмен веществ и дай 3 совета по оптимизации здоровья для этого возраста.`);
-    }
-</script>
-
-</body>
-    </html>
+                    <div class="article-body">
+                        <p>В эволюционном смысле дофамин никогда не был предназначен для бесконечного удовольствия. Его фундаментальная роль — это <strong>мотивация поиска</strong> (seeking system). Когда древний человек видел следы зверя или куст с ягодами, дофамин подталкивал его к действию, обещая выживание. Однако сегодня мы сталкиваемся с феноменом «сверхнормальных стимулов».</p>
+                        
+                        <p>Современные алгоритмы создают бесконечный цикл обратной связи. Каждое уведомление, лайк или яркий ролик вызывают микро-всплеск нейромедиатора. Проблема заключается в том, что наш мозг обладает механизмом гомеостаза. При постоянном избытке дофамина нейроны снижают количество активных рецепторов (D2-рецепторов). Это защитная реакция: мозг пытается «приглушить звук», чтобы не сгореть от перенапряжения.</p>
+                        
+                        <p>Результатом становится десенситизация. Обычные радости жизни — прогулка, чтение глубокой литературы или простое общение — перестают приносить удовлетворение, так как они не могут конкурировать со скоростью и интенсивностью цифровых сигналов. В клинической практике это проявляется как ангедония, хроническая усталость и неспособность к длительной концентрации. Сила воли истощается, так как префронтальная кора (центр исполнительного контроля) буквально проигры
