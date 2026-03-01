@@ -3,196 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HEALTHLOGIC | NEURAL PROTOCOL</title>
+    <title>HealthLogic | Система биологического учета</title>
     
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 
     <style>
         :root { 
-            --bg: #050505; 
-            --neon: #00ff41; /* Кибер-зеленый */
-            --neon-purple: #bc13fe;
+            --bg: #F5F5DC; 
+            --dark: #121212; 
+            --accent: #BC8F8F;
             --white: #ffffff;
-            --border: 2px solid var(--neon);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: crosshair; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--white); overflow-x: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--dark); overflow-x: hidden; line-height: 1.6; }
         
-        /* Глитч-эффект для текста */
-        .glitch { font-family: 'Syncopate', sans-serif; font-weight: 900; position: relative; color: var(--white); }
-        
+        /* Выделитель текста */
+        .highlight { background: var(--accent); color: var(--white); padding: 0 5px; font-weight: 700; }
+        .italic-font { font-family: 'Playfair Display', serif; font-style: italic; }
+
         header { 
-            padding: 20px 5%; 
+            padding: 30px 5%; 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: var(--border); 
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
-            position: fixed; width: 100%; top: 0; z-index: 1000;
+            position: absolute; width: 100%; top: 0; z-index: 1000;
         }
-        .logo { font-family: 'Syncopate'; font-size: 24px; color: var(--neon); text-decoration: none; letter-spacing: 5px; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: var(--white); text-decoration: none; font-weight: 700; font-size: 12px; text-transform: uppercase; transition: 0.3s; }
-        .nav-links a:hover { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .logo { font-weight: 900; font-size: 22px; color: var(--dark); text-decoration: none; letter-spacing: -1px; }
+        .nav-links a { color: var(--dark); text-decoration: none; font-weight: 700; font-size: 13px; text-transform: uppercase; margin-left: 30px; }
 
-        /* Hero блок с неоновым шумом */
+        /* Hero блок */
         .hero { 
-            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-            position: relative; border-bottom: var(--border);
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative; border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-        .hero::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.2;
+        .hero-side-text {
+            position: absolute; font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+            transform: rotate(-90deg); opacity: 0.4; font-weight: 700;
         }
-
         .hero h1 { 
-            font-size: clamp(40px, 10vw, 120px); text-align: center; line-height: 0.9; z-index: 1;
-            text-transform: uppercase; filter: drop-shadow(0 0 15px var(--neon));
+            font-size: clamp(40px, 8vw, 100px); text-align: center; line-height: 0.9; 
+            text-transform: uppercase; font-weight: 900; letter-spacing: -3px;
         }
 
-        /* Цепочка (Timeline) */
-        .chain-container { padding: 100px 10%; position: relative; }
-        .chain-step { 
-            display: flex; align-items: center; margin-bottom: 100px; position: relative; z-index: 2;
-        }
-        .chain-number { 
-            font-size: 80px; font-family: 'Syncopate'; color: transparent; -webkit-text-stroke: 1px var(--neon);
-            margin-right: 40px; opacity: 0.5;
-        }
-        .chain-info { max-width: 500px; border-left: 4px solid var(--neon); padding-left: 30px; }
-        .chain-info h3 { font-size: 28px; color: var(--neon); text-transform: uppercase; margin-bottom: 15px; }
-        
-        /* База знаний - в ряд */
+        /* О проекте - МЯСО */
+        .about-project { padding: 120px 10%; background: var(--dark); color: var(--bg); }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+        .about-grid h2 { font-size: 40px; text-transform: uppercase; line-height: 1; margin-bottom: 30px; }
+        .about-grid p { font-size: 18px; opacity: 0.8; margin-bottom: 20px; }
+
+        /* Цепочка */
+        .chain-container { padding: 120px 10%; }
+        .chain-step { display: flex; margin-bottom: 120px; align-items: center; }
+        .chain-number { font-size: 120px; font-weight: 900; color: rgba(0,0,0,0.05); margin-right: -40px; }
+        .chain-info { position: relative; z-index: 2; border-left: 2px solid var(--dark); padding-left: 40px; }
+        .chain-info h3 { font-size: 30px; text-transform: uppercase; margin-bottom: 15px; }
+
+        /* База знаний - в ряд, минимализм */
         .knowledge-row { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; 
-            border-top: var(--border); border-bottom: var(--border);
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            background: var(--dark); color: var(--bg);
         }
         .k-card { 
-            border-right: var(--border); padding: 60px 30px; position: relative; 
-            transition: 0.5s; overflow: hidden; height: 600px; display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 80px 40px; border-right: 1px solid rgba(255,255,255,0.1);
+            transition: 0.4s; text-decoration: none; color: inherit;
         }
-        .k-card:last-child { border-right: none; }
-        .k-card img { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: -1; opacity: 0.3; transition: 0.5s; filter: grayscale(100%);
-        }
-        .k-card:hover { background: rgba(0, 255, 65, 0.1); }
-        .k-card:hover img { opacity: 0.7; filter: grayscale(0%) contrast(1.2); transform: scale(1.1); }
-        .k-card h3 { font-size: 30px; text-transform: uppercase; margin-bottom: 20px; text-shadow: 2px 2px #000; }
+        .k-card:hover { background: #1a1a1a; }
+        .k-card h3 { font-size: 24px; text-transform: uppercase; margin-bottom: 20px; }
+        .k-card p { font-size: 14px; opacity: 0.6; }
 
-        /* Кнопка калькулятора */
-        .scanner-btn {
-            margin-top: 50px; padding: 25px 50px; background: none; border: var(--border);
-            color: var(--neon); font-family: 'Syncopate'; font-weight: 900; font-size: 20px;
-            cursor: pointer; position: relative; transition: 0.3s; overflow: hidden;
-            text-decoration: none; display: inline-block;
+        /* Кнопка */
+        .btn-main {
+            margin-top: 40px; padding: 20px 40px; background: var(--dark);
+            color: var(--bg); text-decoration: none; font-weight: 900; font-size: 14px;
+            display: inline-block; text-transform: uppercase; transition: 0.3s;
         }
-        .scanner-btn::after {
-            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(0deg, transparent, var(--neon), transparent);
-            transform: rotate(45deg); animation: scan 3s infinite; opacity: 0.3;
-        }
-        @keyframes scan { 0% { top: -100%; } 100% { top: 100%; } }
-        .scanner-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 50px var(--neon); }
+        .btn-main:hover { background: var(--accent); }
 
-        footer { padding: 100px 5%; background: #000; border-top: var(--border); }
-        .disclaimer { color: #555; font-size: 12px; border: 1px solid #333; padding: 20px; margin-bottom: 40px; }
+        footer { padding: 80px 10%; border-top: 1px solid rgba(0,0,0,0.1); }
+        .legal-box { font-size: 12px; opacity: 0.5; max-width: 800px; margin-bottom: 40px; text-align: justify; }
 
-        @media (max-width: 1000px) {
+        @media (max-width: 900px) {
+            .about-grid { grid-template-columns: 1fr; }
             .knowledge-row { grid-template-columns: 1fr; }
-            .k-card { border-right: none; border-bottom: var(--border); height: 400px; }
+            .k-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="index.html" class="logo">HL.LOGIC</a>
+    <a href="index.html" class="logo">HEALTHLOGIC.</a>
     <div class="nav-links">
-        <a href="about.html">О Нас</a>
-        <a href="articles.html">База</a>
-        <a href="calc.html" style="color: var(--neon);">Калькулятор</a>
-        <a href="auth.html" style="border: 1px solid var(--white); padding: 5px 15px;">Вход</a>
+        <a href="about.html">Протокол</a>
+        <a href="calc.html" class="highlight">Расчет КБЖУ</a>
+        <a href="auth.html">Личный кабинет</a>
     </div>
 </header>
 
+<div class="hero-side-text" style="left: 20px; top: 50%;">data protection enabled</div>
+<div class="hero-side-text" style="right: 20px; top: 50%;">v.2026.01.system</div>
+
 <section class="hero">
-    <h1 data-aos="zoom-out-up">Neural<br><span style="color: var(--neon);">Protocol</span><br>2026</h1>
-    <a href="calc.html" class="scanner-btn">ИНИЦИИРОВАТЬ РАСЧЕТ</a>
+    <div data-aos="fade-up">
+        <h1>Твое тело — <br><span class="italic-font">это данные.</span></h1>
+        <p style="text-align: center; margin-top: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Учись ими управлять.</p>
+    </div>
 </section>
 
-
+<section class="about-project">
+    <div class="container about-grid">
+        <div data-aos="fade-right">
+            <h2>Почему мы <br><span style="color: var(--accent);">существуем?</span></h2>
+        </div>
+        <div data-aos="fade-left">
+            <p>Современный мир перегружен "советами" по здоровью, которые не имеют под собой ничего, кроме маркетинга. <span class="highlight">HealthLogic — это не фитнес-блог.</span> Это система, созданная для перевода биологических процессов на язык математики.</p>
+            <p>Мы верим, что управление весом, энергией и сном — это не вопрос силы воли, а вопрос корректности <span class="italic-font">входных данных</span>. Наша миссия — предоставить тебе алгоритмы, проверенные доказательной медициной 2026 года.</p>
+        </div>
+    </div>
+</section>
 
 <section class="chain-container">
-    <h2 style="font-family: 'Syncopate'; font-size: 40px; margin-bottom: 80px; text-align: center;">ПРОТОКОЛ РАЗВИТИЯ</h2>
-    
-    <div class="chain-step" data-aos="fade-right">
+    <div class="chain-step" data-aos="fade-up">
         <div class="chain-number">01</div>
         <div class="chain-info">
-            <h3>АНАЛИЗ ДАННЫХ</h3>
-            <p>Прежде чем менять тело, нужно оцифровать его текущее состояние. Калории, гормоны, фазы сна — твоя база.</p>
+            <h3>Оцифровка</h3>
+            <p>Используй наш анализатор для получения базовых метаболических индексов. Это твоя <span class="highlight">нулевая точка</span>.</p>
         </div>
     </div>
 
-    <div class="chain-step" data-aos="fade-left" style="justify-content: flex-end;">
-        <div class="chain-info" style="border-left: none; border-right: 4px solid var(--neon); padding-left: 0; padding-right: 30px; text-align: right;">
-            <h3>СИНТЕЗ СТРАТЕГИИ</h3>
-            <p>На основе данных мы строим алгоритм питания и нагрузок. Никакой интуиции — только чистая биологическая логика.</p>
+    <div class="chain-step" data-aos="fade-up">
+        <div class="chain-number">02</div>
+        <div class="chain-info">
+            <h3>Анализ базы</h3>
+            <p>Изучай материалы в нашей базе знаний. Мы перевели сложные медицинские статьи на понятный <span class="italic-font">структурный язык</span>.</p>
         </div>
-        <div class="chain-number" style="margin-right: 0; margin-left: 40px;">02</div>
     </div>
 
-    <div class="chain-step" data-aos="fade-right">
+    <div class="chain-step" data-aos="fade-up">
         <div class="chain-number">03</div>
         <div class="chain-info">
-            <h3>ТРАНСФОРМАЦИЯ</h3>
-            <p>Постоянный мониторинг и корректировка курса. Мы оптимизируем твою систему до пиковых показателей.</p>
+            <h3>Коррекция</h3>
+            <p>Применяй полученные знания для настройки своей системы. Без спешки, только на основе <span class="highlight">фактических изменений</span>.</p>
         </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <a href="calc.html" class="btn-main">Перейти к расчету системы</a>
     </div>
 </section>
 
-
-
-<h2 style="padding: 50px 5%; font-family: 'Syncopate'; font-size: 30px;">БАЗА_ДАННЫХ_ЗНАНИЙ</h2>
 <section class="knowledge-row">
-    <div class="k-card" data-aos="fade-up">
-        <img src="https://images.unsplash.com/photo-1550345332-09e3ac987658?w=800">
-        <h3>ГИПЕРТРОФИЯ</h3>
-        <p>Механика мышечного отказа и рекрутирование волокон.</p>
-        <a href="training.html" style="color: var(--neon); font-weight: 900;">[ ОТКРЫТЬ ФАЙЛ ]</a>
-    </div>
-    <div class="k-card" data-aos="fade-up" data-aos-delay="200">
-        <img src="https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=800">
-        <h3>НУТРИЕНТЫ</h3>
-        <p>Микроэлементы как патчи для твоей нервной системы.</p>
-        <a href="magnesium.html" style="color: var(--neon); font-weight: 900;">[ ОТКРЫТЬ ФАЙЛ ]</a>
-    </div>
-    <div class="k-card" data-aos="fade-up" data-aos-delay="400">
-        <img src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800">
-        <h3>БИОХИМИЯ</h3>
-        <p>Как кортизол и дофамин управляют твоей продуктивностью.</p>
-        <a href="fiber.html" style="color: var(--neon); font-weight: 900;">[ ОТКРЫТЬ ФАЙЛ ]</a>
-    </div>
+    <a href="training.html" class="k-card" data-aos="fade-up">
+        <h3>Сила и гипертрофия</h3>
+        <p>Математика мышечного отказа. Почему 80% тренировок в залах не работают.</p>
+    </a>
+    <a href="magnesium.html" class="k-card" data-aos="fade-up" data-aos-delay="100">
+        <h3>Нейробаланс</h3>
+        <p>Разбор микроэлементов: от качества сна до когнитивной выносливости.</p>
+    </a>
+    <a href="fiber.html" class="k-card" data-aos="fade-up" data-aos-delay="200">
+        <h3>Биохимия еды</h3>
+        <p>Как нутриенты меняют твой гормональный фон. Без диет и срывов.</p>
+    </a>
 </section>
 
 <footer>
-    <div class="disclaimer">
-        ВНИМАНИЕ: Протоколы HealthLogic не являются медицинским назначением. Все действия производятся пользователем в режиме эксперимента на свой страх и риск. Консультация со специалистом обязательна.
+    <div class="legal-box">
+        ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ: Информация, представленная на ресурсе HealthLogic, не является медицинской консультацией, диагнозом или планом лечения. Все инструменты (включая калькуляторы) предназначены исключительно для ознакомительных и образовательных целей. Авторы проекта не несут ответственности за любые последствия, возникшие в результате использования данных материалов. Перед внесением любых изменений в рацион, режим физических нагрузок или прием биологически активных добавок, вы обязаны проконсультироваться с лицензированным медицинским специалистом.
     </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div>
-            <p style="font-family: 'Syncopate'; color: var(--neon);">CONNECT:</p>
-            <p>TTOKYOSHIK@GMAIL.COM</p>
-        </div>
-        <p style="opacity: 0.5;">© 2026 NEURAL INTERFACE // HEALTHLOGIC</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; opacity: 0.6; font-size: 13px;">
+        <p>TTOKYOSHIK@GMAIL.COM</p>
+        <p>© 2026 HEALTHLOGIC. SYSTEMATIC APPROACH.</p>
     </div>
 </footer>
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    AOS.init({ duration: 800, once: false });
+    AOS.init({ duration: 1000, once: true });
 </script>
 </body>
-            </html>
-        
+</html>
