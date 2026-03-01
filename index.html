@@ -3,196 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | 2026</title>
+    <title>HealthLogic | Интеллектуальное управление телом</title>
     
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        :root { --bg: #FDF5E6; --black: #000000; --white: #FFFFFF; --accent: #DED7B1; --border: 4px solid #000; }
+        :root { --bg: #FDF5E6; --black: #000; --white: #fff; --accent: #DED7B1; --border: 5px solid #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; color: var(--black); }
         
-        header { background: #fff; border-bottom: var(--border); padding: 20px 0; display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; }
-        .logo { font-weight: 900; font-size: 28px; text-decoration: none; color: #000; }
-        .menu { display: flex; gap: 20px; align-items: center; }
-        .menu a { font-weight: 800; text-decoration: none; color: #000; text-transform: uppercase; font-size: 14px; }
+        /* Loader / Transition */
+        .page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); }
         
-        section { padding: 60px 0; border-bottom: var(--border); }
-
-        /* ЧИСТЫЙ КАЛЬКУЛЯТОР БЕЗ ГОВНА */
-        .simple-calc { background: #1a1a1a; color: #fff; padding: 40px; border: var(--border); max-width: 600px; margin: 0 auto; }
-        .simple-calc h2 { color: var(--accent); text-transform: uppercase; margin-bottom: 20px; font-weight: 900; }
-        .f-group { margin-bottom: 15px; }
-        .f-group label { display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; color: var(--accent); }
-        .f-group input, .f-group select { width: 100%; padding: 12px; background: #000; border: 2px solid var(--accent); color: #fff; font-weight: 700; }
-        .calc-btn { width: 100%; padding: 20px; background: var(--accent); border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
-        #res-box { display: none; margin-top: 20px; padding: 20px; border: 2px dashed var(--accent); text-align: center; }
-
-        .grid-posts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 40px; }
-        .post-card { background: #fff; border: var(--border); }
-        .post-card img { width: 100%; height: 200px; object-fit: cover; border-bottom: var(--border); }
-        .post-card { padding: 15px; }
+        header { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: var(--border); background: #fff; sticky; top: 0; z-index: 100; }
+        .logo { font-weight: 900; font-size: 35px; letter-spacing: -3px; text-decoration: none; color: #000; }
         
-        #config-section { display: none; background: #000; color: #fff; padding: 40px; }
-        .config-area { width: 100%; height: 200px; background: #111; color: #0f0; border: 2px solid var(--accent); padding: 15px; margin: 15px 0; }
+        .hero { height: 90vh; display: flex; align-items: center; justify-content: center; text-align: center; border-bottom: var(--border); position: relative; overflow: hidden; }
+        .hero-content h1 { font-size: clamp(50px, 12vw, 150px); font-weight: 900; line-height: 0.8; text-transform: uppercase; letter-spacing: -5px; }
+        
+        /* Движущаяся строка (Marquee) */
+        .marquee { background: #000; color: #fff; padding: 20px 0; overflow: hidden; white-space: nowrap; border-bottom: var(--border); }
+        .marquee div { display: inline-block; animation: marquee 20s linear infinite; font-weight: 900; font-size: 40px; text-transform: uppercase; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        footer { background: #000; color: #fff; padding: 40px; text-align: center; }
-        .disc { border: 1px solid #fff; padding: 15px; font-size: 11px; max-width: 700px; margin: 0 auto 20px; text-align: left; }
+        .section-title { font-size: 60px; font-weight: 900; text-transform: uppercase; margin-bottom: 50px; padding: 0 5%; }
+        
+        /* Карточки Базы Знаний */
+        .knowledge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); border-bottom: var(--border); }
+        .card { border-right: var(--border); padding: 40px; background: #fff; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; min-height: 500px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .card:hover { background: var(--accent); }
+        .card img { position: absolute; top: 0; left: 0; width: 100%; height: 60%; object-fit: cover; border-bottom: var(--border); grayscale: 100%; transition: 0.5s; }
+        .card:hover img { grayscale: 0%; transform: scale(1.05); }
+        .card h3 { font-size: 32px; font-weight: 900; text-transform: uppercase; z-index: 10; }
+
+        /* Переход в калькулятор */
+        .calc-cta { background: #000; color: #fff; padding: 100px 5%; text-align: center; }
+        .calc-cta h2 { font-size: clamp(40px, 8vw, 100px); margin-bottom: 40px; }
+        .cta-btn { display: inline-block; padding: 30px 60px; background: var(--accent); color: #000; font-weight: 900; font-size: 24px; text-decoration: none; border: var(--border); box-shadow: 15px 15px 0px #fff; transition: 0.3s; }
+        .cta-btn:hover { transform: translate(-5px, -5px); box-shadow: 25px 25px 0px #fff; }
+
+        footer { padding: 80px 5%; background: #000; color: #fff; }
+        .disclaimer { border: 2px solid #fff; padding: 30px; font-size: 14px; line-height: 1.6; max-width: 900px; margin-bottom: 40px; opacity: 0.8; }
+        
+        @media (max-width: 768px) { .knowledge-grid { grid-template-columns: 1fr; } .card { border-right: none; border-bottom: var(--border); } }
     </style>
 </head>
 <body>
 
+<div class="page-transition" id="loader"></div>
+
 <header>
-    <a href="#" class="logo">HEALTHLOGIC.</a>
-    <nav class="menu">
-        <a href="#articles">База знаний</a>
-        <a href="#calc">Калькулятор</a>
-        <div id="auth-menu" style="display:none; gap:15px;">
-            <a href="#config-section" style="color:var(--accent)">[КОНФИГ]</a>
-            <button onclick="logout()" style="background:red; color:#fff; border:none; padding:5px 10px; cursor:pointer;">ВЫХОД</button>
-        </div>
-        <a href="auth.html" id="login-link">ВОЙТИ</a>
+    <a href="index.html" class="logo">HEALTHLOGIC.</a>
+    <nav style="display: flex; gap: 30px;">
+        <a href="calc.html" style="font-weight: 900; text-decoration: none; color: #000; border: 3px solid #000; padding: 10px 20px;">CALC_SYSTEM</a>
     </nav>
 </header>
 
-<section id="config-section">
-    <div class="container">
-        <h2>ЛИЧНЫЙ КОНФИГ</h2>
-        <textarea id="userConfig" class="config-area"></textarea>
-        <button onclick="saveToFirebase()" class="calc-btn" style="width:200px">СОХРАНИТЬ</button>
+<section class="hero">
+    <div class="hero-content" data-aos="zoom-in">
+        <h1>SCIENCE<br><span style="color: var(--accent); -webkit-text-stroke: 3px #000;">LOGIC</span><br>BODY</h1>
     </div>
 </section>
 
-<section id="calc">
-    <div class="container">
-        <div class="simple-calc">
-            <h2>BMR КАЛЬКУЛЯТОР</h2>
-            <div class="f-group">
-                <label>Пол</label>
-                <select id="gender"><option value="male">Мужской</option><option value="female">Женский</option></select>
-            </div>
-            <div class="f-group">
-                <label>Вес (кг)</label>
-                <input type="number" id="weight" placeholder="70">
-            </div>
-            <div class="f-group">
-                <label>Рост (см)</label>
-                <input type="number" id="height" placeholder="175">
-            </div>
-            <div class="f-group">
-                <label>Возраст</label>
-                <input type="number" id="age" placeholder="25">
-            </div>
-            <div class="f-group">
-                <label>Активность</label>
-                <select id="act">
-                    <option value="1.2">Минимальная</option>
-                    <option value="1.375">1-3 тренировки</option>
-                    <option value="1.55">3-5 тренировок</option>
-                    <option value="1.725">Высокая</option>
-                </select>
-            </div>
-            <button class="calc-btn" onclick="runCalc()">РАССЧИТАТЬ НОРМУ</button>
-            
-            <div id="res-box">
-                <span style="font-size:40px; font-weight:900;" id="cal-res">0</span> ККАЛ
-            </div>
-        </div>
+<div class="marquee">
+    <div>БИОХАКИНГ • ДОКАЗАТЕЛЬНАЯ МЕДИЦИНА • ПИТАНИЕ • ТРЕНИРОВКИ • ГИПЕРТРОФИЯ • СОН • ГОРМОНЫ • БИОХАКИНГ • ДОКАЗАТЕЛЬНАЯ МЕДИЦИНА</div>
+</div>
+
+<section style="padding: 100px 5%;">
+    <h2 class="section-title" data-aos="fade-right">Что такое HealthLogic?</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px;">
+        <p style="font-size: 24px; font-weight: 500;" data-aos="fade-up">Мы не продаем курсы и не верим в "волшебные таблетки". Наша цель — дать тебе инструменты для управления собственной биологией. Цифры, графики и биохимия вместо пустых обещаний.</p>
+        <div class="img-frame" style="border: var(--border); height: 300px; background: url('https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800') center/cover;" data-aos="flip-up"></div>
     </div>
 </section>
 
-<section id="articles">
-    <div class="container">
-        <h2 style="text-align:center; font-size:40px; font-weight:900; text-transform:uppercase;">База знаний</h2>
-        <div class="grid-posts">
-            <div class="post-card">
-                <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500">
-                <h3>Гипертрофия: Наука</h3>
-                <a href="training.html">ЧИТАТЬ</a>
-            </div>
-            <div class="post-card">
-                <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500">
-                <h3>Магний и Сон</h3>
-                <a href="magnesium.html">ЧИТАТЬ</a>
-            </div>
-            <div class="post-card">
-                <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500">
-                <h3>Fibermaxxing</h3>
-                <a href="fiber.html">ЧИТАТЬ</a>
-            </div>
-        </div>
+<h2 class="section-title">База Знаний</h2>
+<section class="knowledge-grid">
+    <div class="card" onclick="location.href='training.html'" data-aos="fade-up">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600">
+        <h3>Наука Гипертрофии</h3>
+        <p>Разбор механизмов роста мышц и периодизации.</p>
+    </div>
+    <div class="card" onclick="location.href='magnesium.html'" data-aos="fade-up" data-aos-delay="200">
+        <img src="https://images.unsplash.com/photo-1616670411624-785764bba8e0?w=600">
+        <h3>Эффект Магния</h3>
+        <p>Как формы магния влияют на ЦНС и качество сна.</p>
+    </div>
+    <div class="card" onclick="location.href='fiber.html'" data-aos="fade-up" data-aos-delay="400">
+        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600">
+        <h3>Микробиом</h3>
+        <p>Связь кишечника и когнитивных способностей.</p>
     </div>
 </section>
 
-<section style="text-align:center;">
-    <div class="container">
-        <h2 style="font-size:60px; font-weight:900;">PARTNERSHIP.</h2>
-        <p>TTOKYOSHIK@GMAIL.COM</p>
-    </div>
+<section class="calc-cta">
+    <h2 data-aos="slide-up">Готов узнать свои цифры?</h2>
+    <a href="calc.html" class="cta-btn" data-aos="zoom-in">ОТКРЫТЬ КАЛЬКУЛЯТОР КБЖУ</a>
 </section>
 
 <footer>
-    <div class="disc">
-        <p><strong>ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ:</strong> Не является медицинской рекомендацией. Консультируйтесь с врачом.</p>
+    <div class="disclaimer">
+        <strong>ЮРИДИЧЕСКИЙ ОТКАЗ:</strong> Информация на портале HealthLogic носит ознакомительный характер. Мы не врачи. Любые изменения в диете, тренировках или приеме БАДов должны быть согласованы со специалистом. Ты сам несешь ответственность за свое здоровье.
     </div>
-    <p>© 2026 HEALTHLOGIC</p>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <p style="font-weight: 900; font-size: 24px;">PARTNERSHIP:</p>
+            <p style="font-size: 20px;">TTOKYOSHIK@GMAIL.COM</p>
+        </div>
+        <p>© 2026 HEALTHLOGIC. INDEPENDENT MODEL.</p>
+    </div>
 </footer>
 
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
-    // 1. ФУНКЦИЯ РАСЧЕТА (ВЫНЕСЕНА В САМОЕ НАЧАЛО, ЧТОБЫ РАБОТАЛА СРАЗУ)
-    function runCalc() {
-        console.log("Расчет запущен");
-        const w = parseFloat(document.getElementById('weight').value);
-        const h = parseFloat(document.getElementById('height').value);
-        const a = parseInt(document.getElementById('age').value);
-        const g = document.getElementById('gender').value;
-        const ac = parseFloat(document.getElementById('act').value);
-
-        if(!w || !h || !a) return alert("Заполни цифры!");
-
-        let bmr = (g === 'male') ? (10*w + 6.25*h - 5*a + 5) : (10*w + 6.25*h - 5*a - 161);
-        let res = Math.round(bmr * ac);
-
-        document.getElementById('cal-res').innerText = res;
-        document.getElementById('res-box').style.display = 'block';
-    }
-
-    // 2. FIREBASE (ВНИЗУ, ЧТОБЫ НЕ МЕШАЛ)
-    const firebaseConfig = С ададададададададвжжвыжжывжвжвжвжвжвжвжвжв В;
-
-    try {
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                document.getElementById('login-link').style.display = 'none';
-                document.getElementById('auth-menu').style.display = 'flex';
-                document.getElementById('config-section').style.display = 'block';
-                db.collection("userConfigs").doc(user.uid).get().then(doc => {
-                    if(doc.exists) document.getElementById('userConfig').value = doc.data().configData;
-                });
-            }
-        });
-
-        window.saveToFirebase = function() {
-            const user = auth.currentUser;
-            if(user) {
-                db.collection("userConfigs").doc(user.uid).set({
-                    configData: document.getElementById('userConfig').value,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => alert("Сохранено!"));
-            }
-        };
-        window.logout = () => auth.signOut().then(() => location.reload());
-    } catch(e) { console.log("Firebase off"); }
+    AOS.init({ duration: 1000, once: true });
 </script>
 </body>
-            </html>
-    
+</html>
