@@ -1,4 +1,4 @@
-// 1. ТВОЙ КОНФИГ (Данные из Firebase)
+// 1. КОНФИГ (Твои данные из Firebase Console)
 
 const firebaseConfig = {
   apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
@@ -11,49 +11,62 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// 2. ЗАПУСК (Сделано ровно под твой training.html)
+// 2. ИНИЦИАЛИЗАЦИЯ (Строго через firebase. объект)
+// Это исправляет твою ошибку ReferenceError
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig); 
+    firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// 3. СОЗДАНИЕ КНОПКИ (Появится сама)
-function initLikes() {
-    // Находим страницу
+// 3. ФУНКЦИЯ ОТРИСОВКИ КНОПКИ
+function drawLikes() {
+    console.log("HealthLogic: Начинаю отрисовку...");
+
+    // ID страницы для базы (чтобы лайки были разные у тренировок и магния)
     const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
     
-    // Код самой кнопки
-    const html = `
-    <div id="like-container" style="padding: 50px 10%; text-align: center; border-top: 2px solid #000; background: #fff;">
-        <button id="like-btn" style="background: #000; color: #fff; border: none; padding: 15px 35px; font-weight: 900; cursor: pointer; font-size: 18px;">
-            ❤ ЛАЙК <span id="like-count">0</span>
+    // Создаем HTML-структуру
+    const likeSection = document.createElement('section');
+    likeSection.id = "firebase-interactions";
+    likeSection.style.cssText = "padding: 50px 10%; background: #fff; border-top: 2px solid #000; text-align: center;";
+    
+    likeSection.innerHTML = `
+        <button id="like-btn" style="background: #000; color: #fff; border: none; padding: 15px 40px; font-weight: 900; cursor: pointer; font-size: 18px; text-transform: uppercase;">
+            ❤ ЛАЙК: <span id="like-count">0</span>
         </button>
-    </div>`;
+    `;
 
-    // Вставляем перед подвалом (footer)
+    // Вставляем перед футером (или в конец body, если футера нет)
     const footer = document.querySelector('footer');
     if (footer) {
-        footer.insertAdjacentHTML('beforebegin', html);
+        footer.before(likeSection);
     } else {
-        document.body.insertAdjacentHTML('beforeend', html);
+        document.body.appendChild(likeSection);
     }
 
-    // Связь с базой
+    // ЛОГИКА БАЗЫ ДАННЫХ
     const likeRef = db.ref('likes/' + pageID);
-    
-    // Получаем количество лайков
-    likeRef.on('value', (snap) => {
-        const count = snap.val() || 0;
+
+    // Слушаем изменения (Realtime)
+    likeRef.on('value', (snapshot) => {
+        const count = snapshot.val() || 0;
         const countSpan = document.getElementById('like-count');
         if (countSpan) countSpan.innerText = count;
     });
 
-    // Нажатие на кнопку
+    // Обработка клика (Транзакция, чтобы не сбивался счет при одновременных кликах)
     document.getElementById('like-btn').onclick = function() {
-        likeRef.transaction(current => (current || 0) + 1);
+        likeRef.transaction((currentCount) => {
+            return (currentCount || 0) + 1;
+        });
     };
+    
+    console.log("HealthLogic: Кнопка добавлена успешно!");
 }
 
-// Запускаем, когда страница загрузится
-document.addEventListener("DOMContentLoaded", initLikes);
+// ЗАПУСК (Ждем готовности документа)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', drawLikes);
+} else {
+    drawLikes();
+}
