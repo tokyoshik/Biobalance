@@ -1,4 +1,5 @@
-// ТВОЙ КОНФИГ
+// 1. Твой конфиг (проверь только ссылку databaseURL)
+
 const firebaseConfig = {
   apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
   authDomain: "healthlogic-fe5bd.firebaseapp.com",
@@ -11,48 +12,44 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Исправленная инициализация для версии COMPAT
+// 2. Инициализация (С ИСПРАВЛЕНИЕМ ОШИБКИ ИЗ КОНСОЛИ)
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig); // Добавили firebase.
 }
-
 const db = firebase.database();
 
-// Функция отрисовки
-function renderLike() {
-    console.log("Скрипт отрисовки запущен!");
-
-    const containerHTML = `
-    <div id="firebase-box" style="padding: 40px 10%; background: #fff; border-top: 2px solid #121212; text-align: center;">
-        <button id="like-btn" style="background: #fff; border: 2px solid #121212; padding: 15px 30px; cursor: pointer; font-weight: 900; font-size: 18px;">
+// 3. Функция, которая создаст кнопку
+function createLikeButton() {
+    const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
+    
+    const html = `
+    <div id="like-section" style="padding: 40px; text-align: center; border-top: 2px solid #000;">
+        <button id="like-btn" style="background: #000; color: #fff; padding: 15px 30px; cursor: pointer; font-weight: 900;">
             ❤ ЛАЙК <span id="like-count">0</span>
         </button>
     </div>`;
 
-    // Вставляем перед футером или в конец тела
+    // Вставляем перед футером
     const footer = document.querySelector('footer');
     if (footer) {
-        footer.insertAdjacentHTML('beforebegin', containerHTML);
+        footer.insertAdjacentHTML('beforebegin', html);
     } else {
-        document.body.insertAdjacentHTML('beforeend', containerHTML);
+        document.body.insertAdjacentHTML('beforeend', html);
     }
 
-    // Ссылка на конкретную страницу в базе
-    const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
+    // Связь с твоей Realtime Database (твои правила из фото 2 это позволят)
     const likeRef = db.ref('likes/' + pageID);
-
-    // Слушаем изменения
+    
     likeRef.on('value', (snapshot) => {
         const count = snapshot.val() || 0;
-        const countSpan = document.getElementById('like-count');
-        if (countSpan) countSpan.innerText = count;
+        const span = document.getElementById('like-count');
+        if (span) span.innerText = count;
     });
 
-    // Клик
     document.getElementById('like-btn').onclick = () => {
-        likeRef.transaction((current) => (current || 0) + 1);
+        likeRef.transaction(current => (current || 0) + 1);
     };
 }
 
-// Запуск
-document.addEventListener("DOMContentLoaded", renderLike);
+// Запуск после загрузки страницы
+document.addEventListener("DOMContentLoaded", createLikeButton);
