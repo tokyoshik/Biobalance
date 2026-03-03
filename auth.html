@@ -69,30 +69,23 @@
 </div>
 
 <script>
-    // 1. ТВОЙ КОНФИГ FIREBASE (Вставь сюда тот же самый ключ!)
-    const firebaseConfig = // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    // ИСПРАВЛЕННЫЙ КОНФИГ (Только данные, без импортов)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
+        authDomain: "healthlogic-fe5bd.firebaseapp.com",
+        projectId: "healthlogic-fe5bd",
+        storageBucket: "healthlogic-fe5bd.firebasestorage.app",
+        messagingSenderId: "177114233773",
+        appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
+    };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
-  authDomain: "healthlogic-fe5bd.firebaseapp.com",
-  projectId: "healthlogic-fe5bd",
-  storageBucket: "healthlogic-fe5bd.firebasestorage.app",
-  messagingSenderId: "177114233773",
-  appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);;
-
-    // Инициализация
-    firebase.initializeApp(firebaseConfig);
+    // Инициализация Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const auth = firebase.auth();
 
-    // Переключение между Входом и Регистрацией
+    // Переключение форм
     function toggleAuth() {
         const login = document.getElementById('login-form');
         const reg = document.getElementById('register-form');
@@ -105,27 +98,29 @@ const app = initializeApp(firebaseConfig);;
         }
     }
 
-    // ЛОГИКА ВХОДА
+    // Вход
     async function handleLogin() {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-password').value;
 
+        if(!email || !pass) return alert("Заполните все поля!");
+
         try {
             await auth.signInWithEmailAndPassword(email, pass);
-            alert("Вход выполнен успешно!");
-            window.location.href = "index.html"; // Уходим на главную
+            alert("Вход выполнен!");
+            window.location.href = "index.html"; 
         } catch (error) {
-            alert("Ошибка входа: " + error.message);
+            alert("Ошибка: " + error.message);
         }
     }
 
-    // ЛОГИКА РЕГИСТРАЦИИ
+    // Регистрация
     async function handleRegister() {
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-password').value;
 
         if (pass.length < 6) {
-            alert("Пароль должен быть не менее 6 символов!");
+            alert("Пароль должен быть от 6 символов!");
             return;
         }
 
@@ -141,4 +136,3 @@ const app = initializeApp(firebaseConfig);;
 
 </body>
 </html>
-
