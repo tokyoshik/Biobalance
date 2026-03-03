@@ -1,6 +1,7 @@
-console.log("HealthLogic: components.js загружен!");
+// 1. ПРОВЕРКА В КОНСОЛИ
+console.log("HealthLogic: Файл components.js успешно прочитан браузером!");
 
-// 1. КОНФИГ
+// 2. ТВОЙ КОНФИГ
 
 const firebaseConfig = {
   apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
@@ -14,51 +15,63 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// 2. ИНИЦИАЛИЗАЦИЯ (через проверку, чтобы не было ошибок)
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// 3. БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ
+// Мы проверяем наличие объекта firebase, чтобы не было ошибки ReferenceError
+if (typeof firebase !== 'undefined') {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    console.log("HealthLogic: Firebase готов к работе!");
+} else {
+    console.error("HealthLogic: Ошибка! Firebase не загружен. Проверь порядок скриптов в HTML.");
 }
 
-// 3. ФУНКЦИЯ ОТРИСОВКИ (Работает на любой странице)
-function initGlobalFeatures() {
-    console.log("HealthLogic: Инициализация функций...");
+// 4. ФУНКЦИЯ ОТРИСОВКИ (Она создаст кнопку на любой странице)
+function initLikes() {
+    // Проверяем, есть ли на странице место для вставки (например, футер)
+    const footer = document.querySelector('footer');
     
-    const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
-    const db = firebase.database();
-
-    // Создаем контейнер
-    const interactionDiv = document.createElement('div');
-    interactionDiv.style.cssText = "padding: 50px 10%; text-align: center; background: #fff; border-top: 2px solid #000;";
-    interactionDiv.innerHTML = `
-        <button id="global-like-btn" style="background: #000; color: #fff; border: none; padding: 15px 30px; font-weight: 900; cursor: pointer;">
-            ❤ ЛАЙК <span id="global-like-count">0</span>
+    // Создаем элемент лайков
+    const likeSection = document.createElement('div');
+    likeSection.id = "dynamic-like-section";
+    likeSection.style.cssText = "padding: 40px 10%; text-align: center; background: #fff; border-top: 2px solid #000; margin-top: 20px;";
+    
+    likeSection.innerHTML = `
+        <button id="btn-like" style="background: #000; color: #fff; border: none; padding: 15px 35px; font-weight: 900; cursor: pointer; font-size: 18px;">
+            ❤ ЛАЙК <span id="like-count-val">0</span>
         </button>
     `;
 
-    // Вставляем перед футером
-    const footer = document.querySelector('footer');
+    // Вставляем кнопку
     if (footer) {
-        footer.before(interactionDiv);
+        footer.before(likeSection);
     } else {
-        document.body.appendChild(interactionDiv);
+        document.body.appendChild(likeSection);
     }
 
-    // Связь с базой
+    // Подключаем базу
+    const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
+    const db = firebase.database();
     const likeRef = db.ref('likes/' + pageID);
+
+    // Слушаем количество лайков
     likeRef.on('value', (snap) => {
         const count = snap.val() || 0;
-        const span = document.getElementById('global-like-count');
-        if (span) span.innerText = count;
+        const countSpan = document.getElementById('like-count-val');
+        if (countSpan) countSpan.innerText = count;
     });
 
-    document.getElementById('global-like-btn').onclick = () => {
+    // Обработка клика
+    document.getElementById('btn-like').onclick = function() {
         likeRef.transaction(c => (c || 0) + 1);
     };
+    
+    console.log("HealthLogic: Кнопка лайка отрисована!");
 }
 
-// Запуск
+// ЗАПУСК
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGlobalFeatures);
+    document.addEventListener('DOMContentLoaded', initLikes);
 } else {
-    initGlobalFeatures();
+    initLikes();
 }
