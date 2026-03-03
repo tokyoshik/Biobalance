@@ -1,9 +1,8 @@
-// С - Твой конфиг (ВСТАВЬ СВОИ ДАННЫЕ)
+// 1. Твой конфиг (Впиши свои ключи!)
 
 const firebaseConfig = {
   apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
   authDomain: "healthlogic-fe5bd.firebaseapp.com",
-  databaseURL: "https://console.firebase.google.com/project/healthlogic-fe5bd/database/healthlogic-fe5bd-default-rtdb/data/~2F",
   projectId: "healthlogic-fe5bd",
   storageBucket: "healthlogic-fe5bd.firebasestorage.app",
   messagingSenderId: "177114233773",
@@ -12,84 +11,94 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// В
-
-// Инициализация
+// 2. Инициализация инструментов
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.database(); // Теперь используем Realtime Database
+const db = firebase.database();
 const auth = firebase.auth();
 
-// Функция отрисовки шапки
-function renderHeader() {
-    const headerHTML = `
-    <header style="padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #121212; background: #F5F5DC; position: sticky; top: 0; z-index: 1000; font-family: 'Inter', sans-serif;">
-        <a href="index.html" style="font-weight: 900; font-size: 22px; text-decoration: none; color: #121212; letter-spacing: -1px;">HEALTHLOGIC.</a>
-        <nav style="display: flex; gap: 20px; align-items: center;">
-            <a href="index.html#about-target" style="text-decoration: none; color: #121212; font-weight: 700; font-size: 11px; text-transform: uppercase;">О нас</a>
-            <a href="calc.html" style="text-decoration: none; color: #121212; font-weight: 700; font-size: 11px; text-transform: uppercase;">Калькулятор</a>
-            <a href="auth.html" id="nav-auth-btn" style="text-decoration: none; color: white; font-weight: 700; font-size: 11px; text-transform: uppercase; background: #121212; padding: 8px 16px; border-radius: 2px;">Вход</a>
-        </nav>
-    </header>`;
-    document.body.insertAdjacentHTML('afterbegin', headerHTML);
-    auth.onAuthStateChanged(user => {
-        const btn = document.getElementById('nav-auth-btn');
-        if(user && btn) btn.innerText = 'ПРОФИЛЬ';
-    });
-}
-
-// Функция лайков и комментов
+// 3. Функция отрисовки интерфейса (Лайки и Комменты)
 function renderInteractions() {
+    // Определяем ID страницы по названию файла (например, 'training')
     const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
+    
     const containerHTML = `
-    <section style="padding: 60px 10%; background: #fff; border-top: 2px solid #121212; font-family: 'Inter', sans-serif;">
-        <button id="like-btn" style="background: #fff; border: 2px solid #121212; padding: 10px 20px; cursor: pointer; font-weight: 900; margin-bottom: 20px;">
-            ❤ ЛАЙК <span id="like-count">0</span>
-        </button>
-        <h3>Обсуждение_</h3>
-        <textarea id="comm-text" style="width:100%; height:80px; margin: 15px 0; padding:10px; border:1px solid #121212;" placeholder="Ваше мнение..."></textarea>
-        <button onclick="sendComm('${pageID}')" style="padding:10px 20px; background:#121212; color:#fff; border:none; cursor:pointer; font-weight:700;">ОТПРАВИТЬ</button>
-        <div id="comm-list" style="margin-top:30px;"></div>
+    <section id="feedback-section" style="padding: 60px 10%; background: #fff; border-top: 3px solid #121212; font-family: 'Inter', sans-serif;">
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+            <button id="like-btn" style="background: #121212; color: #fff; border: none; padding: 15px 30px; cursor: pointer; font-weight: 900; font-size: 16px; border-radius: 4px;">
+                ❤ ПОЛЕЗНО <span id="like-count" style="margin-left: 10px; opacity: 0.8;">0</span>
+            </button>
+        </div>
+
+        <h3 style="text-transform: uppercase; font-weight: 900; letter-spacing: -1px;">Обсуждение_</h3>
+        <div id="comm-list" style="margin: 20px 0; max-height: 400px; overflow-y: auto; border-left: 2px solid #eee; padding-left: 20px;">
+            </div>
+
+        <div style="margin-top: 30px;">
+            <textarea id="comm-text" style="width: 100%; height: 100px; padding: 15px; border: 2px solid #121212; font-family: inherit; resize: none;" placeholder="Напишите ваше мнение..."></textarea>
+            <button onclick="sendComment('${pageID}')" style="margin-top: 10px; background: #121212; color: #fff; border: none; padding: 12px 25px; cursor: pointer; font-weight: 700;">ОТПРАВИТЬ</button>
+        </div>
     </section>`;
 
+    // Вставляем перед футером
     const footer = document.querySelector('footer');
-    if(footer) footer.insertAdjacentHTML('beforebegin', containerHTML);
+    if (footer) {
+        footer.insertAdjacentHTML('beforebegin', containerHTML);
+    }
 
-    // Слушаем лайки
-    db.ref('likes/' + pageID).on('value', (snapshot) => {
+    // --- ЛОГИКА ЛАЙКОВ ---
+    const likeRef = db.ref('likes/' + pageID);
+    likeRef.on('value', (snapshot) => {
         const count = snapshot.val() || 0;
-        document.getElementById('like-count').innerText = count;
+        const span = document.getElementById('like-count');
+        if (span) span.innerText = count;
     });
 
     document.getElementById('like-btn').onclick = () => {
-        db.ref('likes/' + pageID).transaction((current) => (current || 0) + 1);
+        likeRef.transaction((current) => (current || 0) + 1);
     };
 
-    // Слушаем комменты
-    db.ref('comments/' + pageID).on('value', (snapshot) => {
+    // --- ЛОГИКА КОММЕНТАРИЕВ ---
+    const commRef = db.ref('comments/' + pageID);
+    commRef.on('value', (snapshot) => {
         const list = document.getElementById('comm-list');
+        if (!list) return;
         list.innerHTML = "";
         snapshot.forEach((child) => {
-            const d = child.val();
-            list.innerHTML += `<div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                <b style="font-size:12px;">${d.user}</b><p>${d.text}</p>
-            </div>`;
+            const data = child.val();
+            list.innerHTML += `
+                <div style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px;">
+                    <div style="font-weight: 900; font-size: 12px; margin-bottom: 5px; color: #555;">${data.user}</div>
+                    <div style="font-size: 15px; line-height: 1.4;">${data.text}</div>
+                </div>`;
         });
     });
 }
 
-window.sendComm = (id) => {
-    const t = document.getElementById('comm-text').value;
-    if(!t) return;
-    const user = auth.currentUser ? auth.currentUser.email : "Аноним";
-    db.ref('comments/' + id).push({ user: user, text: t, time: Date.now() });
-    document.getElementById('comm-text').value = "";
+// Функция отправки комментария
+window.sendComment = (id) => {
+    const textarea = document.getElementById('comm-text');
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    const userEmail = auth.currentUser ? auth.currentUser.email : "Анонимный пользователь";
+    
+    db.ref('comments/' + id).push({
+        user: userEmail,
+        text: text,
+        timestamp: Date.now()
+    });
+
+    textarea.value = "";
 };
 
+// Запуск при загрузке страницы
 document.addEventListener("DOMContentLoaded", () => {
-    renderHeader();
-    if(window.location.pathname.includes("training") || window.location.pathname.includes("magnesium") || window.location.pathname.includes("fiber")) {
+    // Запускаем только на страницах статей
+    if (window.location.pathname.includes("training") || 
+        window.location.pathname.includes("magnesium") || 
+        window.location.pathname.includes("fiber")) {
         renderInteractions();
     }
 });
