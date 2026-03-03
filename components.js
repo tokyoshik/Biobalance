@@ -1,8 +1,9 @@
-// С - Твой конфиг (ВСТАВЬ СВОИ ДАННЫЕ ВНУТРИ {})
+// С - Твой конфиг (ВСТАВЬ СВОИ ДАННЫЕ)
 
 const firebaseConfig = {
   apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
   authDomain: "healthlogic-fe5bd.firebaseapp.com",
+  databaseURL: "https://console.firebase.google.com/project/healthlogic-fe5bd/database/healthlogic-fe5bd-default-rtdb/data/~2F",
   projectId: "healthlogic-fe5bd",
   storageBucket: "healthlogic-fe5bd.firebasestorage.app",
   messagingSenderId: "177114233773",
@@ -17,9 +18,10 @@ const app = initializeApp(firebaseConfig);
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.firestore();
+const db = firebase.database(); // Теперь используем Realtime Database
 const auth = firebase.auth();
 
+// Функция отрисовки шапки
 function renderHeader() {
     const headerHTML = `
     <header style="padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #121212; background: #F5F5DC; position: sticky; top: 0; z-index: 1000; font-family: 'Inter', sans-serif;">
@@ -37,6 +39,7 @@ function renderHeader() {
     });
 }
 
+// Функция лайков и комментов
 function renderInteractions() {
     const pageID = window.location.pathname.split("/").pop().replace(".html", "") || "index";
     const containerHTML = `
@@ -53,22 +56,22 @@ function renderInteractions() {
     const footer = document.querySelector('footer');
     if(footer) footer.insertAdjacentHTML('beforebegin', containerHTML);
 
-    // Подгрузка лайков
-    db.collection("likes").doc(pageID).onSnapshot(doc => {
-        if(doc.exists) document.getElementById('like-count').innerText = doc.data().count || 0;
+    // Слушаем лайки
+    db.ref('likes/' + pageID).on('value', (snapshot) => {
+        const count = snapshot.val() || 0;
+        document.getElementById('like-count').innerText = count;
     });
 
     document.getElementById('like-btn').onclick = () => {
-        if(!auth.currentUser) return alert("Войдите!");
-        db.collection("likes").doc(pageID).set({ count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+        db.ref('likes/' + pageID).transaction((current) => (current || 0) + 1);
     };
 
-    // Подгрузка комментов
-    db.collection("comments").where("page", "==", pageID).orderBy("time", "desc").onSnapshot(snap => {
+    // Слушаем комменты
+    db.ref('comments/' + pageID).on('value', (snapshot) => {
         const list = document.getElementById('comm-list');
         list.innerHTML = "";
-        snap.forEach(doc => {
-            const d = doc.data();
+        snapshot.forEach((child) => {
+            const d = child.val();
             list.innerHTML += `<div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
                 <b style="font-size:12px;">${d.user}</b><p>${d.text}</p>
             </div>`;
@@ -78,9 +81,9 @@ function renderInteractions() {
 
 window.sendComm = (id) => {
     const t = document.getElementById('comm-text').value;
-    if(!auth.currentUser) return alert("Войдите!");
     if(!t) return;
-    db.collection("comments").add({ page: id, user: auth.currentUser.email, text: t, time: firebase.firestore.FieldValue.serverTimestamp() });
+    const user = auth.currentUser ? auth.currentUser.email : "Аноним";
+    db.ref('comments/' + id).push({ user: user, text: t, time: Date.now() });
     document.getElementById('comm-text').value = "";
 };
 
