@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>HealthLogic | Data Interface</title>
+    <title>HealthLogic | Главная</title>
     
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet">
 
@@ -16,16 +13,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--dark); overflow-x: hidden; }
 
-        header { 
-            padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--dark); background: var(--bg); position: sticky; top: 0; z-index: 1000;
-        }
-        .logo { font-weight: 900; font-size: 24px; text-decoration: none; color: var(--dark); letter-spacing: -1px; }
-        .nav { display: flex; gap: 20px; align-items: center; }
-        .nav a { text-decoration: none; color: var(--dark); font-weight: 700; font-size: 11px; text-transform: uppercase; }
-        .nav .btn-auth { border: 1.5px solid var(--dark); padding: 5px 12px; }
-
-        /* САМОЕ ГЛАВНОЕ: ЗАПОЛНЕНИЕ ПУСТОТЫ ПО БОКАМ */
+        /* Герой-секция с наполнением по бокам */
         .hero-container { position: relative; height: 85vh; display: flex; align-items: center; justify-content: center; border-bottom: 2px solid var(--dark); }
         
         .side-info { 
@@ -38,49 +26,28 @@
         .hero-title h1 { font-size: clamp(35px, 9vw, 100px); text-align: center; line-height: 0.85; text-transform: uppercase; font-weight: 900; }
         .italic-style { font-family: 'Playfair Display', serif; font-style: italic; color: var(--accent); }
 
-        /* БЛОК О НАС */
+        /* О нас */
         .about-section { padding: 100px 10%; background: var(--dark); color: var(--bg); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 60px; }
         .about-section h2 { font-size: 45px; text-transform: uppercase; line-height: 0.9; }
         .about-section p { font-size: 18px; line-height: 1.6; opacity: 0.9; }
-        .highlight-text { background: var(--accent); color: white; padding: 2px 6px; }
 
-        /* ЦЕПОЧКА */
-        .chain-box { padding: 80px 10%; }
-        .chain-item { display: flex; margin-bottom: 80px; align-items: flex-start; }
-        .chain-num { font-size: 100px; font-weight: 900; color: var(--accent); opacity: 0.2; margin-right: 20px; line-height: 0.7; }
-        .chain-text { border-left: 3px solid var(--dark); padding-left: 25px; }
-        .chain-text h3 { text-transform: uppercase; margin-bottom: 10px; font-size: 24px; }
-
-        /* СТАТЬИ - 3 ШТУКИ */
+        /* Статьи */
         .articles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); border-top: 2px solid var(--dark); }
         .art-card { padding: 60px 40px; border-right: 2px solid var(--dark); border-bottom: 2px solid var(--dark); text-decoration: none; color: inherit; transition: 0.3s; }
         .art-card:hover { background: var(--white); }
         .art-card h3 { font-size: 26px; text-transform: uppercase; margin-bottom: 20px; }
-        .art-card p { font-size: 14px; opacity: 0.7; line-height: 1.5; }
 
         footer { padding: 60px 10%; background: #000; color: #fff; text-align: center; }
-        .disclaimer-box { border: 1px solid #333; padding: 25px; font-size: 11px; margin-bottom: 40px; text-align: justify; opacity: 0.6; line-height: 1.6; }
+        .disclaimer-box { border: 1px solid #333; padding: 25px; font-size: 11px; margin-bottom: 40px; opacity: 0.6; }
 
-        /* ФИКС ДЛЯ МОБИЛОК (чтобы не было каши) */
         @media (max-width: 850px) {
-            .side-info { display: none; } /* Прячем боковой текст, чтобы не мешал заголовку */
+            .side-info { display: none; }
             .hero-container { height: 60vh; }
             .articles-grid { grid-template-columns: 1fr; }
-            .art-card { border-right: none; }
-            .about-section { padding: 60px 20px; }
         }
     </style>
 </head>
 <body>
-
-<header>
-    <a href="index.html" class="logo">HL.LOGIC</a>
-    <nav class="nav">
-        <a href="#about-target">О нас</a>
-        <a href="calc.html" style="background: var(--dark); color: var(--bg); padding: 5px 10px;">Калькулятор</a>
-        <a href="auth.html" class="btn-auth">Вход</a>
-    </nav>
-</header>
 
 <section class="hero-container">
     <div class="side-info side-left">
@@ -102,46 +69,28 @@
         <h2>Почему мы<br><span style="color: var(--accent);">существуем?</span></h2>
     </div>
     <div data-aos="fade-left">
-        <p>Современный мир перегружен советами, которые не имеют под собой ничего, кроме маркетинга. <span class="highlight-text">HealthLogic — это не фитнес-блог.</span></p>
-        <p style="margin-top: 20px;">Мы создали инструмент для тех, кто хочет превратить биологические процессы в понятные цифры. Вес, энергия и рост мышц — это результат правильных <span class="italic-style">входных данных</span>. Мы даем алгоритм, ты даешь дисциплину.</p>
-    </div>
-</section>
-
-<section class="chain-box">
-    <div class="chain-item" data-aos="fade-up">
-        <div class="chain-num">01</div>
-        <div class="chain-text">
-            <h3>Инициализация</h3>
-            <p>Запуск калькулятора для получения базовых метаболических индексов. Твоя отправная точка.</p>
-        </div>
-    </div>
-    <div class="chain-item" data-aos="fade-up">
-        <div class="chain-num">02</div>
-        <div class="chain-text">
-            <h3>Оптимизация</h3>
-            <p>Настройка рациона и тренировок на основе полученных данных, а не догадок.</p>
-        </div>
+        <p>Мы создали HealthLogic для тех, кто устал от маркетинга и хочет видеть сухие цифры своего прогресса. Вес, энергия и рост — это результат верных данных.</p>
     </div>
 </section>
 
 <section class="articles-grid">
     <a href="training.html" class="art-card" data-aos="fade-up">
         <h3>01. Тренинг</h3>
-        <p>Научный подход к гипертрофии. Почему классические программы из интернета не растят мышцы.</p>
+        <p>Научный подход к гипертрофии и механике роста.</p>
     </a>
     <a href="magnesium.html" class="art-card" data-aos="fade-up" data-aos-delay="100">
         <h3>02. БАДы</h3>
-        <p>Микроэлементы как патчи системы. Как магний и цинк влияют на твой сон и тестостерон.</p>
+        <p>Микроэлементы как способ оптимизации нейрохимии.</p>
     </a>
     <a href="fiber.html" class="art-card" data-aos="fade-up" data-aos-delay="200">
         <h3>03. Клетчатка</h3>
-        <p>Микробиом и кишечник. Связь твоего питания с когнитивными способностями и иммунитетом.</p>
+        <p>Микробиом и его связь с твоим мозгом и иммунитетом.</p>
     </a>
 </section>
 
 <footer>
     <div class="disclaimer-box">
-        ЮРИДИЧЕСКИЙ ОТКАЗ: Весь контент на сайте HealthLogic (включая расчеты и статьи) предоставлен только для образовательных и ознакомительных целей. HEALTHLOGIC не является медицинской организацией. Мы не даем профессиональных медицинских советов. Перед любым действием — будь то прием БАД или смена режима тренировок — <strong>ОБЯЗАТЕЛЬНО ПРОКОНСУЛЬТИРУЙТЕСЬ С ВРАЧОМ</strong>.
+        ЮРИДИЧЕСКИЙ ОТКАЗ: Контент не является медицинской консультацией. Перед любыми изменениями в рационе или тренировках ОБЯЗАТЕЛЬНО ПРОКОНСУЛЬТИРУЙТЕСЬ С ВРАЧОМ.
     </div>
     <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 11px; opacity: 0.8;">
         <span>TTOKYOSHIK@GMAIL.COM</span>
@@ -149,20 +98,15 @@
     </div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="components.js"></script>
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
     AOS.init({ duration: 800, once: true });
-
-    // Firebase Config (Твои данные здесь)
-    const firebaseConfig = {
-        apiKey: "AIzaSy...",
-        authDomain: "your-app.firebaseapp.com",
-        projectId: "your-project-id",
-        storageBucket: "your-app.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef"
-    };
-    firebase.initializeApp(firebaseConfig);
 </script>
+
 </body>
-</html>
+    </html>
+                                                               
