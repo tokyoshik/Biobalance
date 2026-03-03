@@ -14,7 +14,7 @@ window.addEventListener('load', function() {
 
     // 2. ПЕРЕДАЕМ ЭТУ КОРОБКУ В FIREBASE
     // Мы говорим: "Эй, Firebase, используй настройки из const firebaseConfig"
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
 
     // 3. ПОДКЛЮЧАЕМ БАЗУ ДАННЫХ
     const db = firebase.database();
