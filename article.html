@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthLogic | Статья</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --bg: #FDF5E6; --black: #000; --border: 4px solid #000; --accent: #DED7B1; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--black); line-height: 1.6; }
+        
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        header#main-header { background: #fff; border-bottom: var(--border); padding: 15px 0; sticky: top; }
+        .header-nav { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .logo { font-size: 20px; font-weight: 900; text-decoration: none; color: #000; text-transform: uppercase; }
+
+        .article-title { font-weight: 900; font-size: clamp(30px, 5vw, 50px); text-transform: uppercase; line-height: 1; margin-bottom: 30px; }
+        .main-image { width: 100%; border: var(--border); box-shadow: 10px 10px 0px #000; margin-bottom: 40px; }
+        
+        /* Стили для блоков */
+        .content-block { margin-bottom: 25px; font-size: 18px; font-weight: 400; }
+        .block-image { width: 100%; border: var(--border); margin: 20px 0; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #000; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid #000; }
+    </style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="header-nav">
+        <a href="index.html" class="logo">HealthLogic.</a>
+        <div id="auth-status"></div>
+    </div>
+</header>
+
+<div class="container">
+    <a href="index.html" class="back-btn">← Назад</a>
+    <h1 id="article-title" class="article-title">Загрузка...</h1>
+    <img id="article-image" class="main-image" src="" style="display:none;">
+    <div id="article-content">
+        </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
+        authDomain: "healthlogic-fe5bd.firebaseapp.com",
+        databaseURL: "https://healthlogic-fe5bd-default-rtdb.firebaseio.com",
+        projectId: "healthlogic-fe5bd",
+        storageBucket: "healthlogic-fe5bd.firebasestorage.app",
+        messagingSenderId: "177114233773",
+        appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Получаем ID из ссылки
+    const urlParams = new URLSearchParams(window.location.search);
+    const articleId = urlParams.get('id');
+
+    if (articleId) {
+        firebase.database().ref('articles/' + articleId).once('value').then(snap => {
+            const data = snap.val();
+            if (data) {
+                document.getElementById('article-title').innerText = data.title;
+                if (data.image) {
+                    const img = document.getElementById('article-image');
+                    img.src = data.image;
+                    img.style.display = 'block';
+                }
+                
+                // Если данные блочные (массив), выводим их
+                const contentDiv = document.getElementById('article-content');
+                if (data.blocks) {
+                    data.blocks.forEach(block => {
+                        const div = document.createElement('div');
+                        div.className = 'content-block';
+                        if (block.type === 'text') {
+                            div.innerText = block.content;
+                        } else if (block.type === 'image') {
+                            div.innerHTML = `<img src="${block.content}" class="block-image">`;
+                        }
+                        contentDiv.appendChild(div);
+                    });
+                } else {
+                    // Если старый формат (просто текст)
+                    contentDiv.innerText = data.text;
+                }
+            }
+        });
+    }
+</script>
+<script src="components.js"></script>
+</body>
+</html>
