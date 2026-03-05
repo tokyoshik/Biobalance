@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL | LOGIN</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="components.js"></script>
+    <style>
+        :root { --accent: #00ff41; --brd: 4px solid #000; --shd: 10px 10px 0px #000; }
+        body { font-family: 'Inter', sans-serif; background: #f0f0f0; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        
+        .login-box { 
+            background: #fff; 
+            border: var(--brd); 
+            box-shadow: var(--shd); 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 360px; 
+            text-align: center; 
+        }
+
+        h1 { text-transform: uppercase; font-size: 32px; font-weight: 900; margin-bottom: 20px; border-bottom: var(--brd); padding-bottom: 10px; }
+        
+        input { 
+            width: 100%; 
+            border: var(--brd); 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus { background: #fafafa; transform: translate(-2px, -2px); box-shadow: 2px 2px 0 #000; }
+
+        .btn-login { 
+            width: 100%; 
+            background: var(--accent); 
+            border: var(--brd); 
+            padding: 15px; 
+            font-size: 18px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            box-shadow: 5px 5px 0 #000; 
+            transition: 0.1s; 
+        }
+
+        .btn-login:active { transform: translate(5px, 5px); box-shadow: 0 0 0 #000; }
+        
+        .error-msg { color: #ff3e00; font-weight: 800; font-size: 12px; margin-top: 15px; display: none; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h1>HealthLogic</h1>
+        <input type="email" id="email" placeholder="ПОЧТА">
+        <input type="password" id="password" placeholder="ПАРОЛЬ">
+        <button class="btn-login" onclick="signIn()">ВОЙТИ В СИСТЕМУ</button>
+        <div id="err" class="error-msg">НЕВЕРНЫЕ ДАННЫЕ</div>
+    </div>
+
+    <script>
+        async function signIn() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            const err = document.getElementById('err');
+            
+            try {
+                // Пытаемся авторизоваться через Firebase
+                await firebase.auth().signInWithEmailAndPassword(e, p);
+                window.location.href = "admin.html"; // Уходим в админку при успехе
+            } catch (error) {
+                console.error(error);
+                err.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
