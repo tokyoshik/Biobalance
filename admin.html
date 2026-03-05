@@ -2,59 +2,189 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>HL | Admin Panel</title>
+    <title>HL | Панель управления</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="components.js"></script> <style>
-        body { font-family: 'Inter', sans-serif; background: #f0f0f0; padding: 20px; }
-        .debug-panel { background: #000; color: #0f0; padding: 15px; margin-bottom: 20px; font-family: monospace; border: 4px solid #0f0; }
-        .editor { background: #fff; border: 4px solid #000; max-width: 800px; margin: 0 auto; padding: 40px; box-shadow: 15px 15px 0px #000; }
-        input, textarea { width: 100%; margin-bottom: 20px; padding: 15px; border: 3px solid #000; font-weight: bold; }
-        .btn-pub { background: #000; color: #fff; padding: 20px; width: 100%; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        .grid { display: flex; gap: 20px; } .col { flex: 1; }
+    <script src="components.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --black: #000; --white: #fff; --accent: #ffcc00; --border: 4px solid #000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f0f0f0; display: flex; min-height: 100vh; }
+
+        /* Сайдбар */
+        .sidebar { width: 280px; background: var(--black); color: var(--white); padding: 30px; position: fixed; height: 100vh; }
+        .sidebar h2 { font-weight: 900; text-transform: uppercase; margin-bottom: 40px; color: var(--accent); }
+        .menu-btn { display: block; width: 100%; background: none; border: 2px solid #333; color: #fff; padding: 15px; margin-bottom: 10px; text-align: left; cursor: pointer; font-weight: 900; text-transform: uppercase; transition: 0.2s; }
+        .menu-btn:hover, .menu-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* Основная область */
+        .main { margin-left: 280px; padding: 50px; width: 100%; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Формы и таблицы */
+        .card { background: #fff; border: var(--border); padding: 30px; box-shadow: 10px 10px 0px #000; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 15px; border: 3px solid #000; margin-bottom: 20px; font-family: inherit; font-weight: 700; outline: none; }
+        button.save-btn { width: 100%; padding: 20px; background: #000; color: #fff; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+        
+        table { width: 100%; border-collapse: collapse; background: #fff; border: var(--border); }
+        th, td { padding: 15px; border: 2px solid #000; text-align: left; }
+        th { background: #eee; text-transform: uppercase; font-weight: 900; }
+        .role-badge { padding: 5px 10px; font-weight: 900; text-transform: uppercase; font-size: 12px; }
+        .role-admin { background: #ff4444; color: #fff; }
     </style>
 </head>
 <body>
-    <div class="debug-panel" id="debug">Проверка...</div>
-    <div class="editor">
-        <h1 style="text-transform: uppercase; font-weight: 900; margin-bottom: 20px;">Новый пост</h1>
-        <input type="text" id="title" placeholder="ЗАГОЛОВОК">
-        <input type="text" id="mainImg" placeholder="ГЛАВНОЕ ФОТО (URL)">
-        <div class="grid">
-            <div class="col"><textarea id="txt1" placeholder="Текст (50%)" rows="8"></textarea></div>
-            <div class="col">
-                <input type="text" id="sideImg" placeholder="Фото (50%)">
-                <textarea id="txt2" placeholder="Финальный текст" rows="4"></textarea>
-            </div>
+
+<div class="sidebar">
+    <h2>HL ADMIN</h2>
+    <button class="menu-btn active" onclick="showTab('create', this)">Создать статью</button>
+    <button class="menu-btn" onclick="showTab('articles', this); loadArticlesList();">Все статьи</button>
+    <button class="menu-btn" onclick="showTab('users', this); loadUsersList();">Пользователи</button>
+    <hr style="border: 1px solid #333; margin: 20px 0;">
+    <a href="index.html" style="color: var(--accent); font-weight: 900; text-decoration: none;">← НА САЙТ</a>
+</div>
+
+<div class="main">
+    <div id="create" class="tab-content active">
+        <div class="card">
+            <h1 style="margin-bottom: 20px; text-transform: uppercase; font-weight: 900;">Новая публикация</h1>
+            <input type="text" id="post-title" placeholder="ЗАГОЛОВОК СТАТЬИ">
+            <input type="text" id="post-img" placeholder="URL ГЛАВНОГО ИЗОБРАЖЕНИЯ (ПРЯМАЯ ССЫЛКА)">
+            <textarea id="post-text" rows="10" placeholder="ТЕКСТ СТАТЬИ..."></textarea>
+            <button class="save-btn" onclick="publishPost()">Опубликовать на сайте</button>
         </div>
-        <button class="btn-pub" onclick="save()">ОПУБЛИКОВАТЬ СТАТЬЮ</button>
     </div>
 
-    <script>
-        auth.onAuthStateChanged(user => {
-            const debug = document.getElementById('debug');
-            if (user) {
-                db.ref('users/' + user.uid).once('value').then(snap => {
-                    const role = snap.val() ? snap.val().role : "НЕТ РОЛИ";
-                    debug.innerHTML = `UID: ${user.uid} | ROLE: ${role}`;
-                });
-            } else { debug.innerHTML = "НЕ АВТОРИЗОВАН"; }
-        });
+    <div id="articles" class="tab-content">
+        <h1 style="margin-bottom: 20px; text-transform: uppercase; font-weight: 900;">Управление контентом</h1>
+        <table id="articles-table">
+            <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>Просмотры</th>
+                    <th>Дата</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="articles-list"></tbody>
+        </table>
+    </div>
 
-        function save() {
-            const data = {
-                title: document.getElementById('title').value,
-                image: document.getElementById('mainImg').value,
-                blocks: [
-                    { type: 'text', width: '50', content: document.getElementById('txt1').value },
-                    { type: 'image', width: '50', content: document.getElementById('sideImg').value },
-                    { type: 'text', width: '100', content: document.getElementById('txt2').value }
-                ],
-                timestamp: Date.now()
-            };
-            db.ref('articles').push(data).then(() => { alert("Готово!"); location.reload(); });
+    <div id="users" class="tab-content">
+        <h1 style="margin-bottom: 20px; text-transform: uppercase; font-weight: 900;">База атлетов</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th>Роль</th>
+                    <th>UID</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="users-list"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 1. ПРОВЕРКА ПРАВ (БЕЗОПАСНОСТЬ)
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) { window.location.href = 'auth.html'; return; }
+        
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        const userData = snap.val();
+        
+        if (!userData || userData.role !== 'admin') {
+            alert("ДОСТУП ЗАПРЕЩЕН: ТРЕБУЮТСЯ ПРАВА АДМИНИСТРАТОРА");
+            window.location.href = 'index.html';
         }
-    </script>
+    });
+
+    // 2. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+    function showTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // 3. ПУБЛИКАЦИЯ СТАТЬИ
+    function publishPost() {
+        const title = document.getElementById('post-title').value;
+        const img = document.getElementById('post-img').value;
+        const text = document.getElementById('post-text').value;
+
+        if (!title || !text) return alert("Заполни заголовок и текст!");
+
+        const newPost = {
+            title: title,
+            image: img,
+            blocks: [{ type: 'text', content: text, width: '100' }],
+            views: 0,
+            timestamp: Date.now()
+        };
+
+        db.ref('articles').push(newPost).then(() => {
+            alert("Статья успешно опубликована!");
+            location.reload();
+        });
+    }
+
+    // 4. СПИСОК СТАТЬИ И УДАЛЕНИЕ
+    function loadArticlesList() {
+        db.ref('articles').on('value', snap => {
+            const list = document.getElementById('articles-list');
+            list.innerHTML = '';
+            snap.forEach(child => {
+                const post = child.val();
+                list.innerHTML += `
+                    <tr>
+                        <td><b>${post.title}</b></td>
+                        <td>${post.views || 0} 👀</td>
+                        <td>${new Date(post.timestamp).toLocaleDateString()}</td>
+                        <td><button onclick="deletePost('${child.key}')" style="color:red; cursor:pointer;">Удалить</button></td>
+                    </tr>`;
+            });
+        });
+    }
+
+    function deletePost(id) {
+        if (confirm("Удалить эту статью навсегда?")) {
+            db.ref(`articles/${id}`).remove();
+        }
+    }
+
+    // 5. УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ
+    function loadUsersList() {
+        db.ref('users').on('value', snap => {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            snap.forEach(child => {
+                const u = child.val();
+                const isAdmin = u.role === 'admin';
+                list.innerHTML += `
+                    <tr>
+                        <td>${u.username || 'Аноним'}</td>
+                        <td><span class="role-badge ${isAdmin ? 'role-admin' : ''}">${u.role}</span></td>
+                        <td style="font-size:10px; color:#888;">${child.key}</td>
+                        <td>
+                            ${!isAdmin ? `<button onclick="makeAdmin('${child.key}')">Сделать админом</button>` : '---'}
+                        </td>
+                    </tr>`;
+            });
+        });
+    }
+
+    function makeAdmin(uid) {
+        if (confirm("Дать этому пользователю полные права админа?")) {
+            db.ref(`users/${uid}/role`).set('admin');
+        }
+    }
+</script>
 </body>
 </html>
