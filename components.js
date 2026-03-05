@@ -1,4 +1,4 @@
-// 1. ЕДИНЫЙ КОНФИГ (Только здесь!)
+// 1. ЕДИНЫЙ КОНФИГ
 const firebaseConfig = {
     apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
     authDomain: "healthlogic-fe5bd.firebaseapp.com",
@@ -16,21 +16,64 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const auth = firebase.auth();
 
-// 3. УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ПОЛЬЗОВАТЕЛЯ (Вход/Выход/Ник)
+// 3. ФУНКЦИЯ ФИРМЕННОГО УВЕДОМЛЕНИЯ (TOAST)
+function showNotify(text) {
+    let toast = document.getElementById('hl-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'hl-toast';
+        // Стили в стиле брутализма
+        Object.assign(toast.style, {
+            position: 'fixed', 
+            bottom: '-150px', 
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            background: '#ffcc00', 
+            border: '4px solid #000', 
+            padding: '20px 30px',
+            fontWeight: '900', 
+            textTransform: 'uppercase', 
+            boxShadow: '8px 8px 0px #000',
+            zIndex: '10000', 
+            transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            minWidth: '320px',
+            gap: '20px'
+        });
+        document.body.appendChild(toast);
+    }
+
+    toast.innerHTML = `
+        <span style="font-size: 14px; line-height: 1.2;">${text}</span>
+        <div onclick="this.parentElement.style.bottom = '-150px'" 
+             style="cursor:pointer; font-size:24px; font-weight:900; line-height:1;">×</div>
+    `;
+
+    // Появление
+    setTimeout(() => { toast.style.bottom = '30px'; }, 100);
+
+    // Авто-исчезновение через 3 секунды
+    setTimeout(() => { 
+        if(toast) toast.style.bottom = '-150px'; 
+    }, 3500);
+}
+
+// 4. УНИВЕРСАЛЬНАЯ ПАНЕЛЬ ПОЛЬЗОВАТЕЛЯ
 async function initUserPanel() {
     const nav = document.getElementById('user-panel');
     if (!nav) return;
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            // Получаем данные профиля из базы
             const snap = await db.ref(`users/${user.uid}`).once('value');
             const userData = snap.val() || {};
             const isAdmin = userData.role === 'admin';
             
             nav.innerHTML = `
                 <div style="display:flex; gap:15px; align-items:center;">
-                    <span style="font-weight:900; text-transform:uppercase; background:#ffcc00; padding:2px 5px;">
+                    <span style="font-weight:900; text-transform:uppercase; background:#ffcc00; padding:2px 5px; border: 2px solid #000;">
                         ${userData.username || 'Атлет'}
                     </span>
                     ${isAdmin ? '<a href="admin.html" style="color:red; font-weight:900; text-decoration:none; border:2px solid red; padding:2px 5px;">ADMIN</a>' : ''}
@@ -50,12 +93,11 @@ async function initUserPanel() {
     });
 }
 
-// 4. СЧЕТЧИК ПРОСМОТРОВ (Backend-логика)
+// 5. СЧЕТЧИК ПРОСМОТРОВ
 function trackView(articleId) {
     if (!articleId) return;
     const viewRef = db.ref(`articles/${articleId}/views`);
     viewRef.transaction(current => (current || 0) + 1);
 }
 
-// Запускаем панель сразу при загрузке любой страницы
 document.addEventListener('DOMContentLoaded', initUserPanel);
