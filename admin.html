@@ -2,106 +2,44 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Visual Editor</title>
-    
+    <title>HealthLogic | Debug Admin</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-
     <style>
-        :root { --bg: #f8f8f8; --black: #000; --accent: #DED7B1; --border: 4px solid #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
-
-        /* Панель управления */
-        .dashboard { max-width: 1100px; margin: 50px auto; padding: 20px; }
-        .btn-create { 
-            background: #000; color: #fff; border: var(--border); padding: 25px 50px;
-            font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 22px;
-            box-shadow: 12px 12px 0px var(--accent); transition: 0.2s;
-        }
-        .btn-create:hover { transform: translate(-4px, -4px); box-shadow: 16px 16px 0px #000; }
-
-        /* Окно редактора (Стиль "Журнал") */
-        #editor-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.98); z-index: 1000; overflow-y: auto; padding: 40px 20px;
-        }
-        .magazine-layout { 
-            max-width: 900px; margin: 0 auto; background: #fff; 
-            border: var(--border); padding: 40px; box-shadow: 20px 20px 0px rgba(0,0,0,0.1);
-        }
-
-        /* Элементы шаблона */
-        .input-title { width: 100%; font-size: 48px; font-weight: 900; border: none; border-bottom: 4px solid #000; margin-bottom: 30px; text-transform: uppercase; outline: none; }
-        .input-main-img { width: 100%; padding: 15px; border: 2px dashed #000; margin-bottom: 30px; font-weight: 700; }
-        
-        /* Сетка как в Newsletter */
-        .template-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .grid-left { width: 55%; }
-        .grid-right { width: calc(45% - 20px); }
-
-        .editor-textarea { width: 100%; border: none; background: #f9f9f9; padding: 15px; font-size: 18px; resize: none; min-height: 150px; border-left: 6px solid #000; margin-bottom: 20px; }
-        .editor-img-url { width: 100%; padding: 10px; border: 2px solid #000; margin-bottom: 15px; font-weight: 800; }
-
-        .floating-controls { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; }
-        .btn-save { background: #000; color: #fff; border: var(--border); padding: 15px 30px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        .btn-close { background: #fff; color: #000; border: var(--border); padding: 15px 30px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-
-        .article-list-item { background: #fff; border: var(--border); padding: 20px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Inter', sans-serif; background: #f0f0f0; padding: 20px; }
+        .debug-panel { background: #000; color: #0f0; padding: 15px; margin-bottom: 20px; font-family: monospace; border: 4px solid #0f0; }
+        .magazine-editor { background: #fff; border: 4px solid #000; max-width: 800px; margin: 0 auto; padding: 40px; box-shadow: 15px 15px 0px #000; }
+        input, textarea { width: 100%; margin-bottom: 20px; padding: 15px; border: 3px solid #000; font-size: 16px; font-weight: bold; }
+        .btn-publish { background: #000; color: #fff; padding: 20px; width: 100%; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .grid { display: flex; gap: 20px; }
+        .col { flex: 1; }
     </style>
 </head>
 <body>
 
-    <div id="dashboard-view" class="dashboard">
-        <h1 style="font-weight: 900; text-transform: uppercase; margin-bottom: 40px;">Панель редактора</h1>
-        <button class="btn-create" onclick="openVisualEditor()">+ Создать статью по шаблону</button>
+    <div class="debug-panel" id="debug">Проверка авторизации...</div>
+
+    <div class="magazine-editor">
+        <h1 style="text-transform: uppercase; font-weight: 900;">Новая статья (Шаблон)</h1>
         
-        <div id="articles-list" style="margin-top: 50px;">
+        <input type="text" id="title" placeholder="ЗАГОЛОВОК СТАТЬИ">
+        <input type="text" id="mainImg" placeholder="ССЫЛКА НА ГЛАВНОЕ ФОТО">
+
+        <div class="grid">
+            <div class="col">
+                <textarea id="txt1" placeholder="Текст слева..." rows="10"></textarea>
             </div>
-    </div>
-
-    <div id="editor-overlay">
-        <div class="magazine-layout">
-            <input type="text" id="post-title" class="input-title" placeholder="ЗАГОЛОВОК СТАТЬИ">
-            
-            <label style="font-weight: 900;">ГЛАВНОЕ ФОТО (URL):</label>
-            <input type="text" id="post-main-img" class="input-main-img" placeholder="https://ссылка-на-обложку.jpg">
-
-            <div class="template-grid">
-                <div class="grid-left">
-                    <label style="font-weight: 900; font-size: 11px;">БЛОК ТЕКСТА 1</label>
-                    <textarea id="block-1" class="editor-textarea" placeholder="Начни писать вступление здесь..."></textarea>
-                    
-                    <label style="font-weight: 900; font-size: 11px;">БЛОК ТЕКСТА 2</label>
-                    <textarea id="block-2" class="editor-textarea" placeholder="Продолжение основной мысли..."></textarea>
-                </div>
-
-                <div class="grid-right">
-                    <label style="font-weight: 900; font-size: 11px;">БОКОВОЕ ФОТО (URL)</label>
-                    <input type="text" id="block-img" class="editor-img-url" placeholder="URL картинки...">
-                    
-                    <div style="height: 200px; background: #eee; border: 2px dashed #000; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #999;">
-                        ПРЕВЬЮ ФОТО
-                    </div>
-
-                    <label style="font-weight: 900; font-size: 11px;">ПОДПИСЬ К ФОТО</label>
-                    <textarea id="block-3" class="editor-textarea" style="min-height: 100px; font-size: 14px;" placeholder="Краткое описание или цитата..."></textarea>
-                </div>
+            <div class="col">
+                <input type="text" id="sideImg" placeholder="ССЫЛКА НА БОКОВОЕ ФОТО">
+                <textarea id="txt2" placeholder="Подпись справа..." rows="5"></textarea>
             </div>
         </div>
 
-        <div class="floating-controls">
-            <button class="btn-close" onclick="closeEditor()">ОТМЕНА</button>
-            <button class="btn-save" onclick="saveMagazineArticle()">ОПУБЛИКОВАТЬ</button>
-        </div>
+        <button class="btn-publish" onclick="save()">ОПУБЛИКОВАТЬ</button>
     </div>
 
 <script>
-    // Твоя конфигурация Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
         authDomain: "healthlogic-fe5bd.firebaseapp.com",
@@ -111,61 +49,48 @@
         messagingSenderId: "177114233773",
         appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
-    function openVisualEditor() {
-        document.getElementById('editor-overlay').style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Запретить скролл фона
+    // Детектор прав
+    auth.onAuthStateChanged(user => {
+        const debug = document.getElementById('debug');
+        if (user) {
+            db.ref('users/' + user.uid).once('value').then(snap => {
+                const userData = snap.val();
+                const role = userData ? userData.role : "НЕТ РОЛИ";
+                debug.innerHTML = `UID: ${user.uid} | РОЛЬ В БАЗЕ: ${role} | СТАТУС: ВОШЕЛ`;
+                if(role !== 'admin') debug.style.color = "red";
+            });
+        } else {
+            debug.innerHTML = "СТАТУС: НЕ ЗАЛОГИНЕН. Срочно зайди через auth.html!";
+            debug.style.color = "red";
+        }
+    });
+
+    function save() {
+        const user = auth.currentUser;
+        if (!user) return alert("Сначала войди в аккаунт!");
+
+        const data = {
+            title: document.getElementById('title').value,
+            image: document.getElementById('mainImg').value,
+            blocks: [
+                { type: 'text', width: '50', content: document.getElementById('txt1').value },
+                { type: 'image', width: '50', content: document.getElementById('sideImg').value },
+                { type: 'text', width: '100', content: document.getElementById('txt2').value }
+            ],
+            timestamp: Date.now()
+        };
+
+        db.ref('articles').push(data)
+            .then(() => alert("УРА! Статья в базе!"))
+            .catch(err => {
+                console.error(err);
+                alert("ОШИБКА: " + err.message);
+            });
     }
-
-    function closeEditor() {
-        document.getElementById('editor-overlay').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    function saveMagazineArticle() {
-        const title = document.getElementById('post-title').value;
-        const mainImg = document.getElementById('post-main-img').value;
-
-        // Собираем блоки строго по шаблону
-        const blocks = [
-            { type: 'text', width: '100', content: document.getElementById('block-1').value },
-            { type: 'image', width: '50', content: document.getElementById('block-img').value },
-            { type: 'text', width: '50', content: document.getElementById('block-3').value },
-            { type: 'text', width: '100', content: document.getElementById('block-2').value }
-        ];
-
-        if (!title || !blocks[0].content) return alert("Заголовок и текст обязательны!");
-
-        db.ref('articles').push({
-            title, image: mainImg, blocks, timestamp: Date.now()
-        }).then(() => {
-            alert("Статья в стиле журнала создана!");
-            location.reload();
-        }).catch(err => alert("Ошибка: " + err.message));
-    }
-
-    // Загрузка списка (как в прошлый раз)
-    function loadList() {
-        db.ref('articles').on('value', snap => {
-            const list = document.getElementById('articles-list');
-            list.innerHTML = '';
-            const data = snap.val();
-            if (data) {
-                Object.entries(data).reverse().forEach(([id, art]) => {
-                    list.innerHTML += `
-                        <div class="article-list-item">
-                            <span style="font-weight:900;">${art.title}</span>
-                            <button onclick="deleteArt('${id}')" style="background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">УДАЛИТЬ</button>
-                        </div>
-                    `;
-                });
-            }
-        });
-    }
-    function deleteArt(id) { if(confirm("Удалить?")) db.ref('articles/'+id).remove(); }
-    loadList();
 </script>
 </body>
 </html>
