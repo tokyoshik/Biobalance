@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Панель управления</title>
+    <title>HealthLogic | Админ-панель</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -12,158 +12,130 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        :root { --bg: #FDF5E6; --black: #000; --border: 4px solid #000; --accent: #DED7B1; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; padding-bottom: 50px; }
-
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        :root { --bg: #f4f4f4; --black: #000; --border: 3px solid #000; --accent: #DED7B1; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; padding: 20px; }
         
-        /* Стили формы */
-        .admin-card {
-            background: #fff; border: var(--border); box-shadow: 10px 10px 0px #000;
-            padding: 30px; margin-top: 30px;
-        }
-        h1, h2 { font-weight: 900; text-transform: uppercase; margin-bottom: 20px; }
+        .admin-container { max-width: 900px; margin: 0 auto; background: #fff; border: var(--border); box-shadow: 10px 10px 0px #000; padding: 30px; }
+        h1 { font-weight: 900; text-transform: uppercase; margin-bottom: 20px; border-bottom: var(--border); padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 900; text-transform: uppercase; font-size: 12px; margin-bottom: 8px; }
+        input, textarea, select { width: 100%; padding: 12px; border: var(--border); font-family: inherit; font-weight: 700; outline: none; }
+
+        /* Конструктор */
+        #constructor-area { background: #fafafa; border: 2px dashed #000; padding: 20px; margin: 20px 0; }
+        .block-item { background: #fff; border: var(--border); padding: 15px; margin-bottom: 15px; position: relative; display: flex; flex-direction: column; gap: 10px; }
+        .block-item.half { width: 48%; display: inline-flex; vertical-align: top; }
         
-        label { display: block; font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; }
-        input, textarea { 
-            width: 100%; padding: 15px; border: 2px solid #000; margin-bottom: 20px;
-            font-family: inherit; font-weight: 700; outline: none;
-        }
-        input:focus, textarea:focus { background: var(--accent); }
+        .block-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-add { background: var(--accent); color: #000; border: var(--border); padding: 10px 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn-add:hover { background: #000; color: #fff; }
 
-        .publish-btn {
-            width: 100%; padding: 20px; background: #000; color: #fff; border: none;
-            font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s;
-        }
-        .publish-btn:hover { background: var(--accent); color: #000; transform: translate(-3px, -3px); box-shadow: 6px 6px 0px #000; }
+        .btn-publish { width: 100%; background: #000; color: #fff; border: none; padding: 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 18px; margin-top: 20px; }
+        .btn-publish:hover { background: var(--accent); color: #000; }
 
-        /* Список существующих постов */
-        .post-manager { margin-top: 50px; }
-        .post-item {
-            background: #fff; border: 2px solid #000; padding: 15px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .post-info { font-weight: 700; font-size: 14px; }
-        .del-btn {
-            background: #ff4d4d; color: #fff; border: 2px solid #000; padding: 5px 10px;
-            font-weight: 900; cursor: pointer; font-size: 10px;
-        }
-        .del-btn:hover { background: #000; }
-
-        header#main-header { position: sticky; top: 0; z-index: 1000; }
-        #admin-wrapper { display: none; } /* Скрыто до проверки прав */
+        .remove-btn { position: absolute; top: -10px; right: -10px; background: red; color: #fff; border: 2px solid #000; width: 25px; height: 25px; cursor: pointer; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <header id="main-header"></header>
+<div class="admin-container">
+    <h1>Создать новую статью</h1>
 
-    <div class="container" id="admin-wrapper">
-        <div class="admin-card">
-            <h1>Новая публикация</h1>
-            
-            <label>Заголовок статьи</label>
-            <input type="text" id="post-title" placeholder="Напр: Польза магния для сна">
+    <div class="form-group">
+        <label>Заголовок статьи</label>
+        <input type="text" id="post-title" placeholder="Введите название...">
+    </div>
 
-            <label>Текст статьи</label>
-            <textarea id="post-text" rows="8" placeholder="Напишите основной контент..."></textarea>
+    <div class="form-group">
+        <label>Главная обложка (URL картинки)</label>
+        <input type="text" id="post-main-img" placeholder="https://example.com/image.jpg">
+    </div>
 
-            <label>URL Картинки (Обложка)</label>
-            <input type="text" id="post-img" placeholder="https://images.unsplash.com/photo-...">
+    <div id="constructor-area">
+        <label>Конструктор контента</label>
+        <div id="blocks-container">
+            </div>
 
-            <button class="publish-btn" onclick="addPost()">Опубликовать на главной</button>
-        </div>
-
-        <div class="post-manager">
-            <h2>Управление постами</h2>
-            <div id="posts-list">
-                </div>
+        <div class="block-controls">
+            <button class="btn-add" onclick="addBlock('text')">+ Добавить текст</button>
+            <button class="btn-add" onclick="addBlock('image')">+ Добавить фото</button>
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
-            authDomain: "healthlogic-fe5bd.firebaseapp.com",
-            databaseURL: "https://healthlogic-fe5bd-default-rtdb.firebaseio.com",
-            projectId: "healthlogic-fe5bd",
-            storageBucket: "healthlogic-fe5bd.firebasestorage.app",
-            messagingSenderId: "177114233773",
-            appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+    <button class="btn-publish" onclick="publishArticle()">Опубликовать на сайт</button>
+    <a href="index.html" style="display:block; text-align:center; margin-top:20px; color:#000; font-weight:800; text-transform:uppercase; font-size:12px;">Вернуться на главную</a>
+</div>
 
-        // 1. ПРОВЕРКА ПРАВ
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.ref('users/' + user.uid + '/role').once('value').then(snap => {
-                    if (snap.val() === 'admin') {
-                        document.getElementById('admin-wrapper').style.display = 'block';
-                        loadAdminPosts();
-                    } else {
-                        window.location.href = "index.html";
-                    }
-                });
-            } else {
-                window.location.href = "auth.html";
-            }
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
+        authDomain: "healthlogic-fe5bd.firebaseapp.com",
+        databaseURL: "https://healthlogic-fe5bd-default-rtdb.firebaseio.com",
+        projectId: "healthlogic-fe5bd",
+        storageBucket: "healthlogic-fe5bd.firebasestorage.app",
+        messagingSenderId: "177114233773",
+        appId: "1:177114233773:web:0e341fb52efcf7dc2cff24"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function addBlock(type) {
+        const container = document.getElementById('blocks-container');
+        const id = Date.now();
+        const block = document.createElement('div');
+        block.className = 'block-item';
+        block.id = 'block-' + id;
+
+        let contentHtml = '';
+        if (type === 'text') {
+            contentHtml = `<textarea class="b-data" data-type="text" placeholder="Ваш текст..." rows="4"></textarea>`;
+        } else {
+            contentHtml = `<input type="text" class="b-data" data-type="image" placeholder="URL картинки...">`;
+        }
+
+        block.innerHTML = `
+            <button class="remove-btn" onclick="document.getElementById('block-${id}').remove()">✕</button>
+            <label>${type === 'text' ? 'Текстовый блок' : 'Блок изображения'}</label>
+            ${contentHtml}
+            <select class="b-width">
+                <option value="100">Ширина: 100%</option>
+                <option value="50">Ширина: 50% (в ряд)</option>
+            </select>
+        `;
+        container.appendChild(block);
+    }
+
+    function publishArticle() {
+        const title = document.getElementById('post-title').value;
+        const mainImg = document.getElementById('post-main-img').value;
+        const blockElements = document.querySelectorAll('.block-item');
+        
+        let blocks = [];
+        blockElements.forEach(item => {
+            const dataEl = item.querySelector('.b-data');
+            const widthEl = item.querySelector('.b-width');
+            blocks.push({
+                type: dataEl.getAttribute('data-type'),
+                content: dataEl.value,
+                width: widthEl.value
+            });
         });
 
-        // 2. ДОБАВЛЕНИЕ ПОСТА
-        function addPost() {
-            const title = document.getElementById('post-title').value;
-            const text = document.getElementById('post-text').value;
-            const img = document.getElementById('post-img').value;
+        if (!title || blocks.length === 0) return alert("Заполни заголовок и добавь хотя бы один блок!");
 
-            if (!title || !text) return showToast("Заполни заголовок и текст!");
+        const newPostRef = db.ref('articles').push();
+        newPostRef.set({
+            title: title,
+            image: mainImg,
+            blocks: blocks,
+            timestamp: Date.now()
+        }).then(() => {
+            alert("Статья успешно создана!");
+            window.location.href = "index.html";
+        }).catch(err => alert(err.message));
+    }
+</script>
 
-            const newPostRef = db.ref('articles').push();
-            newPostRef.set({
-                title: title,
-                text: text,
-                image: img || "https://via.placeholder.com/800x400?text=HealthLogic",
-                date: Date.now()
-            }).then(() => {
-                showToast("СТАТЬЯ ОПУБЛИКОВАНА!");
-                document.getElementById('post-title').value = '';
-                document.getElementById('post-text').value = '';
-                document.getElementById('post-img').value = '';
-            });
-        }
-
-        // 3. ЗАГРУЗКА СПИСКА ДЛЯ УДАЛЕНИЯ
-        function loadAdminPosts() {
-            db.ref('articles').on('value', snap => {
-                const list = document.getElementById('posts-list');
-                list.innerHTML = '';
-                const data = snap.val();
-                if (data) {
-                    Object.entries(data).reverse().forEach(([id, post]) => {
-                        list.innerHTML += `
-                            <div class="post-item">
-                                <div class="post-info">${post.title}</div>
-                                <button class="del-btn" onclick="deletePost('${id}')">УДАЛИТЬ</button>
-                            </div>
-                        `;
-                    });
-                }
-            });
-        }
-
-        // 4. УДАЛЕНИЕ
-        function deletePost(id) {
-            if (confirm("Точно удалить статью?")) {
-                db.ref('articles/' + id).remove()
-                .then(() => showToast("СТАТЬЯ УДАЛЕНА"));
-                // Лайки к этой статье тоже лучше почистить
-                db.ref('likes/' + id).remove();
-            }
-        }
-    </script>
-    <script src="components.js"></script>
 </body>
 </html>
-
