@@ -2,133 +2,114 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HealthLogic | Лента</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthLogic | Главная</title>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
     <style>
-        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1d1d1f; }
+        :root { --accent: #0071e3; --text: #1d1d1f; --bg: #ffffff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* HEADER */
+        nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); z-index: 1000; border-bottom: 1px solid #eee; }
+        .logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; }
+        .nav-links a { text-decoration: none; color: var(--text); font-weight: 600; margin-left: 20px; font-size: 14px; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+
+        /* HERO SECTION */
+        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; background: radial-gradient(circle at top right, #e3f2ff, #fff); }
+        .hero h1 { font-size: clamp(40px, 8vw, 90px); font-weight: 900; line-height: 0.9; letter-spacing: -4px; margin-bottom: 20px; }
+        .hero p { max-width: 600px; font-size: 18px; color: #86868b; line-height: 1.4; }
+
+        /* TOP 3 ARTICLES */
+        .top-grid { padding: 80px 5%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        @media (max-width: 900px) { .top-grid { grid-template-columns: 1fr; } }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .top-card { background: #000; color: #fff; border-radius: 30px; height: 450px; padding: 40px; display: flex; flex-direction: column; justify-content: flex-end; text-decoration: none; transition: 0.5s; background-size: cover; background-position: center; position: relative; overflow: hidden; }
+        .top-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        .top-card div { position: relative; z-index: 2; }
+        .top-card:hover { transform: scale(0.98); }
 
-        header { 
-            width: 100%; 
-            max-width: 600px; 
-            margin-bottom: 30px; 
-            padding: 10px 5px;
-        }
+        /* FEED SECTION */
+        .section-title { padding: 0 5%; font-size: 32px; font-weight: 800; margin-bottom: 30px; }
+        .feed { padding: 0 5% 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .feed-item { background: #f5f5f7; padding: 25px; border-radius: 20px; text-decoration: none; color: inherit; transition: 0.3s; border: 1px solid transparent; }
+        .feed-item:hover { border-color: var(--accent); background: #fff; }
 
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; }
-
-        #feed { 
-            width: 100%; 
-            max-width: 600px; /* Оптимальная ширина для чтения */
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-        }
-
-        /* Карточка статьи: на весь экран мобилки, четкие границы */
-        .article-card { 
-            background: var(--card); 
-            border-radius: 18px; 
-            padding: 20px; 
-            text-decoration: none; 
-            color: inherit;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-            display: block;
-        }
-
-        .article-card:active { transform: scale(0.98); }
-
-        .article-card h2 { 
-            margin: 0 0 10px 0; 
-            font-size: 22px; 
-            font-weight: 700; 
-            line-height: 1.2; 
-        }
-
-        .article-card p { 
-            margin: 0; 
-            font-size: 15px; 
-            color: #86868b; 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .date { 
-            font-size: 11px; 
-            font-weight: 700; 
-            color: #0071e3; 
-            text-transform: uppercase; 
-            margin-bottom: 8px; 
-            display: block;
-        }
-
-        /* Анимация загрузки */
-        .loader { font-weight: 600; color: #888; margin-top: 50px; }
+        /* FOOTER & DISCLAIMER */
+        footer { background: #f5f5f7; padding: 60px 10%; border-top: 1px solid #e5e5e5; }
+        .disclaimer { font-size: 12px; color: #86868b; line-height: 1.6; text-align: center; max-width: 800px; margin: 0 auto; }
     </style>
 </head>
 <body>
 
-    <header>
+    <nav>
         <div class="logo">HealthLogic</div>
-    </header>
+        <div class="nav-links">
+            <a href="index.html">Главная</a>
+            <a href="admin.html">Админка</a>
+            <a href="#">Вход</a>
+        </div>
+    </nav>
 
-    <div id="feed">
-        <div class="loader">Синхронизация протоколов...</div>
-    </div>
+    <section class="hero" data-aos="fade-up">
+        <h1>Health<br>Logic.</h1>
+        <p>Профессиональный взгляд на биохакинг и медицину будущего. Мы переводим сложные исследования на язык понятных протоколов.</p>
+    </section>
 
+    <h2 class="section-title" data-aos="fade-right">Главные темы</h2>
+    <div class="top-grid" id="top-articles">
+        </div>
+
+    <h2 class="section-title" data-aos="fade-right">Все протоколы</h2>
+    <div class="feed" id="general-feed"></div>
+
+    <footer>
+        <div class="disclaimer">
+            <strong>ДИСКЛЕЙМЕР:</strong> Весь контент на сайте HealthLogic носит исключительно информационный характер. Мы не являемся медицинским учреждением. Перед применением любых протоколов, приемом препаратов или изменением образа жизни ОБЯЗАТЕЛЬНО проконсультируйтесь с лечащим врачом. Администрация сайта не несет ответственности за последствия самостоятельного лечения.
+            <br><br>
+            © 2026 HealthLogic Protocol. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        const feed = document.getElementById('feed');
+        AOS.init({ duration: 1000, once: true });
 
-        // Получаем список статей
         db.ref('articles').orderByChild('date').on('value', snap => {
-            feed.innerHTML = "";
             const data = snap.val();
+            if(!data) return;
+
+            const list = Object.keys(data).map(k => ({id: k, ...data[k]})).reverse();
             
-            if(!data) {
-                feed.innerHTML = "<div class='loader'>Лента пуста</div>";
-                return;
-            }
-
-            // Превращаем объект в массив и сортируем (новые сверху)
-            const list = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
-
-            list.forEach(post => {
-                const a = document.createElement('a');
-                a.className = 'article-card';
-                a.href = `article.html?id=${post.id}`;
-                
-                // Берем первый текстовый блок для превью, если он есть
-                let previewText = "";
-                if(post.blocks) {
-                    const firstText = post.blocks.find(b => b.type === 'text');
-                    previewText = firstText ? firstText.content : "Открыть протокол...";
-                }
-
-                a.innerHTML = `
-                    <span class="date">${new Date(post.date || Date.now()).toLocaleDateString()}</span>
-                    <h2>${post.title}</h2>
-                    <p>${previewText}</p>
+            // 1. Рендерим ТОП-3
+            const topArea = document.getElementById('top-articles');
+            topArea.innerHTML = "";
+            list.slice(0, 3).forEach(post => {
+                const img = post.blocks?.find(b => b.type === 'image')?.content || 'https://images.unsplash.com/photo-1505751172177-5180c4fe2474';
+                topArea.innerHTML += `
+                    <a href="article.html?id=${post.id}" class="top-card" style="background-image: url('${img}')" data-aos="zoom-in">
+                        <div>
+                            <small>HOT PROTOCOL</small>
+                            <h3>${post.title}</h3>
+                        </div>
+                    </a>
                 `;
-                feed.appendChild(a);
+            });
+
+            // 2. Рендерим остальную ленту
+            const feedArea = document.getElementById('general-feed');
+            feedArea.innerHTML = "";
+            list.slice(3).forEach(post => {
+                feedArea.innerHTML += `
+                    <a href="article.html?id=${post.id}" class="feed-item" data-aos="fade-up">
+                        <small style="color: var(--accent)">${new Date(post.date).toLocaleDateString()}</small>
+                        <h3 style="margin-top:10px">${post.title}</h3>
+                    </a>
+                `;
             });
         });
     </script>
