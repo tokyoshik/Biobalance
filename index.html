@@ -2,124 +2,135 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Путь Атлета</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HealthLogic | Лента</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f0f0f0; --white: #fff; --black: #000; --accent: #ffcc00; --border: 4px solid #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--black); line-height: 1.4; }
-
-        .header { max-width: 1300px; margin: 0 auto; padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: var(--border); background: var(--white); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: 900; font-size: 32px; text-transform: uppercase; letter-spacing: -2px; text-decoration: none; color: #000; }
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-link { font-weight: 900; text-transform: uppercase; text-decoration: none; color: #000; font-size: 13px; padding: 5px 10px; border: 2px solid transparent; }
-        .nav-link:hover { border-color: var(--black); background: var(--accent); }
-
-        .hero { max-width: 1300px; margin: 40px auto; padding: 80px 20px; text-align: center; background: var(--black); color: var(--accent); border: var(--border); box-shadow: 15px 15px 0px var(--accent); }
-        .hero h1 { font-size: clamp(40px, 10vw, 110px); font-weight: 900; text-transform: uppercase; line-height: 0.8; letter-spacing: -5px; }
-
-        .main-container { max-width: 1300px; margin: 60px auto; padding: 0 20px; }
+        :root { --bg: #f2f2f7; --card: #ffffff; --text: #1d1d1f; }
         
-        /* СЕКЦИЯ "БАЗА" */
-        .featured-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 80px; }
-        @media (max-width: 900px) { .featured-grid { grid-template-columns: 1fr; } }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        .featured-card { background: var(--accent); border: var(--border); padding: 30px; text-decoration: none; color: #000; box-shadow: 8px 8px 0px #000; transition: 0.2s; }
-        .featured-card:hover { transform: translate(-4px, -4px); box-shadow: 12px 12px 0px #000; }
-        .featured-card h3 { font-weight: 900; text-transform: uppercase; font-size: 24px; line-height: 1; }
-        .featured-card p { font-weight: 700; margin-top: 10px; font-size: 14px; opacity: 0.8; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        .section-title { font-weight: 900; text-transform: uppercase; font-size: 24px; margin-bottom: 30px; display: flex; align-items: center; gap: 15px; }
-        .section-title::after { content: ""; height: 4px; background: #000; flex-grow: 1; }
+        header { 
+            width: 100%; 
+            max-width: 600px; 
+            margin-bottom: 30px; 
+            padding: 10px 5px;
+        }
 
-        #articles-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px; }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; }
 
-        .article-card { background: var(--white); border: var(--border); box-shadow: 10px 10px 0px var(--black); transition: 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
-        .article-card:hover { transform: translate(-8px, -8px); box-shadow: 18px 18px 0px var(--accent); }
-        .card-img { width: 100%; height: 230px; object-fit: cover; border-bottom: var(--border); }
-        .card-content { padding: 25px; flex-grow: 1; }
-        .card-content h2 { font-weight: 900; text-transform: uppercase; font-size: 22px; line-height: 1.1; }
+        #feed { 
+            width: 100%; 
+            max-width: 600px; /* Оптимальная ширина для чтения */
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
 
-        .footer { background: var(--black); color: var(--white); padding: 80px 20px; margin-top: 100px; text-align: center; }
+        /* Карточка статьи: на весь экран мобилки, четкие границы */
+        .article-card { 
+            background: var(--card); 
+            border-radius: 18px; 
+            padding: 20px; 
+            text-decoration: none; 
+            color: inherit;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            display: block;
+        }
+
+        .article-card:active { transform: scale(0.98); }
+
+        .article-card h2 { 
+            margin: 0 0 10px 0; 
+            font-size: 22px; 
+            font-weight: 700; 
+            line-height: 1.2; 
+        }
+
+        .article-card p { 
+            margin: 0; 
+            font-size: 15px; 
+            color: #86868b; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .date { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: #0071e3; 
+            text-transform: uppercase; 
+            margin-bottom: 8px; 
+            display: block;
+        }
+
+        /* Анимация загрузки */
+        .loader { font-weight: 600; color: #888; margin-top: 50px; }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <a href="index.html" class="logo">HealthLogic</a>
-        <div class="nav-links">
-            <a href="training.html" class="nav-link">Тренинг</a>
-            <a href="magnesium.html" class="nav-link">Магний</a>
-            <a href="fiber.html" class="nav-link">Клетчатка</a>
-            <a href="about.html" class="nav-link">О проекте</a>
-            <div id="user-panel"></div>
-        </div>
+    <header>
+        <div class="logo">HealthLogic</div>
     </header>
 
-    <section class="hero">
-        <h1>ЛОГИКА<br>АТЛЕТА.</h1>
-    </section>
-
-    <main class="main-container">
-        <div class="section-title">Золотая база</div>
-        <div class="featured-grid">
-            <a href="training.html" class="featured-card">
-                <h3>01. ТРЕНИНГ</h3>
-                <p>Принципы гипертрофии и прогрессии нагрузок.</p>
-            </a>
-            <a href="magnesium.html" class="featured-card">
-                <h3>02. МАГНИЙ</h3>
-                <p>Почему этот минерал — фундамент твоего спокойствия.</p>
-            </a>
-            <a href="fiber.html" class="featured-card">
-                <h3>03. КЛЕТЧАТКА</h3>
-                <p>Чистый ЖКТ и долголетие в одной тарелке.</p>
-            </a>
-        </div>
-
-        <div class="section-title">Лента публикаций</div>
-        <div id="articles-container">
-            <h2 id="status">Загрузка архивов...</h2>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <div style="font-size: 40px; font-weight: 900; color: var(--accent);">HEALTHLOGIC</div>
-        <p style="opacity: 0.5; font-weight: 700; margin-top: 10px;">© 2026 Сделано для атлетов будущего.</p>
-    </footer>
+    <div id="feed">
+        <div class="loader">Синхронизация протоколов...</div>
+    </div>
 
     <script>
-        function loadArticles() {
-            const container = document.getElementById('articles-container');
-            db.ref('articles').on('value', (snapshot) => {
-                const data = snapshot.val();
-                container.innerHTML = ''; 
-                if (!data) {
-                    container.innerHTML = '<h2>Лента пока пуста.</h2>';
-                    return;
+        const feed = document.getElementById('feed');
+
+        // Получаем список статей
+        db.ref('articles').orderByChild('date').on('value', snap => {
+            feed.innerHTML = "";
+            const data = snap.val();
+            
+            if(!data) {
+                feed.innerHTML = "<div class='loader'>Лента пуста</div>";
+                return;
+            }
+
+            // Превращаем объект в массив и сортируем (новые сверху)
+            const list = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+
+            list.forEach(post => {
+                const a = document.createElement('a');
+                a.className = 'article-card';
+                a.href = `article.html?id=${post.id}`;
+                
+                // Берем первый текстовый блок для превью, если он есть
+                let previewText = "";
+                if(post.blocks) {
+                    const firstText = post.blocks.find(b => b.type === 'text');
+                    previewText = firstText ? firstText.content : "Открыть протокол...";
                 }
-                Object.keys(data).reverse().forEach(id => {
-                    const post = data[id];
-                    container.innerHTML += `
-                        <a href="article.html?id=${id}" class="article-card">
-                            <img src="${post.image || ''}" class="card-img" onerror="this.src='https://via.placeholder.com/600x400?text=HL'">
-                            <div class="card-content">
-                                <h2>${post.title}</h2>
-                                <p style="margin-top:15px; font-weight:900; text-transform:uppercase; font-size:12px;">👀 ${post.views || 0} просмотров</p>
-                            </div>
-                        </a>
-                    `;
-                });
+
+                a.innerHTML = `
+                    <span class="date">${new Date(post.date || Date.now()).toLocaleDateString()}</span>
+                    <h2>${post.title}</h2>
+                    <p>${previewText}</p>
+                `;
+                feed.appendChild(a);
             });
-        }
-        window.onload = loadArticles;
+        });
     </script>
 </body>
 </html>
