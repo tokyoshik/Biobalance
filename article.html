@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Статья</title>
+    <title>HL | Протокол</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -12,38 +12,69 @@
     <style>
         :root { --border: 4px solid #000; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f5f5f5; font-family: 'Inter', sans-serif; padding: 15px; }
-        .wrapper { max-width: 1100px; margin: 0 auto; }
-        .title { font-size: clamp(30px, 8vw, 80px); font-weight: 900; text-transform: uppercase; line-height: 0.9; margin: 40px 0 20px; }
-        .grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .box { background: #fff; border: var(--border); padding: 25px; font-weight: 600; }
-        .left { flex: 1; min-width: 300px; font-size: 18px; }
-        .right { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
-        .img { width: 100%; border: var(--border); height: auto; display: block; background: #eee; }
-        @media (max-width: 600px) { .left, .right { min-width: 100%; } }
+        body { background: #f5f5f5; font-family: 'Inter', sans-serif; padding: 20px; color: #000; }
+        .wrapper { max-width: 1000px; margin: 0 auto; }
+        
+        .post-title { font-size: clamp(35px, 8vw, 90px); font-weight: 900; text-transform: uppercase; line-height: 0.85; letter-spacing: -3px; margin-bottom: 30px; }
+        
+        /* Контейнер для блоков */
+        #article-content { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Стиль текстового блока */
+        .b-text { background: #fff; border: var(--border); padding: 30px; font-size: 19px; font-weight: 600; line-height: 1.6; white-space: pre-wrap; box-shadow: 8px 8px 0 #000; }
+        
+        /* Стиль картинки */
+        .b-img { width: 100%; border: var(--border); display: block; box-shadow: 8px 8px 0 #000; object-fit: cover; }
+
+        .loading { font-weight: 900; text-transform: uppercase; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="wrapper">
-        <h1 id="t" class="title">...</h1>
-        <div class="grid">
-            <div id="tl" class="box left"></div>
-            <div class="right">
-                <img id="ir" src="" class="img">
-                <div id="tf" class="box"></div>
-            </div>
+        <h1 id="view-title" class="post-title">ЗАГРУЗКА...</h1>
+        <div id="article-content">
+            <p class="loading">Синхронизация протокола...</p>
         </div>
     </div>
+
     <script>
         const id = new URLSearchParams(window.location.search).get('id');
-        db.ref(`articles/${id}`).on('value', s => {
-            const d = s.val(); if(!d) return;
-            // Проверка: если нового поля нет, берем старое или ставим пустую строку
-            document.getElementById('t').innerText = d.title || "Без заголовка";
-            document.getElementById('tl').innerText = d.textL || d.content || "Текст отсутствует";
-            document.getElementById('ir').src = d.imgR || d.image || d.mainImage || "";
-            document.getElementById('tf').innerText = d.textF || "Дополнительная информация...";
-        });
+        if(id) {
+            db.ref(`articles/${id}`).on('value', snap => {
+                const data = snap.val();
+                if(!data) return;
+
+                document.getElementById('view-title').innerText = data.title;
+                const container = document.getElementById('article-content');
+                container.innerHTML = ""; 
+
+                // Если есть массив блоков (новый редактор)
+                if(data.blocks && Array.isArray(data.blocks)) {
+                    data.blocks.forEach(block => {
+                        if(block.type === 'text' && block.content) {
+                            const div = document.createElement('div');
+                            div.className = "b-text";
+                            div.innerText = block.content;
+                            container.appendChild(div);
+                        } 
+                        else if(block.type === 'image' && block.content) {
+                            const img = document.createElement('img');
+                            img.className = "b-img";
+                            img.src = block.content;
+                            container.appendChild(img);
+                        }
+                    });
+                } else {
+                    // Резервный вариант для старых статей
+                    const div = document.createElement('div');
+                    div.className = "b-text";
+                    div.innerText = data.content || data.textL || "Контент не найден";
+                    container.appendChild(div);
+                }
+            });
+            trackView(id);
+        }
     </script>
 </body>
 </html>
