@@ -3,78 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>HealthLogic | Протоколы биохакинга и медицина будущего</title>
-    <meta name="description" content="Научный подход к здоровью. Эффективные протоколы по приему нутрицевтиков, тренировкам и оптимизации образа жизни.">
-    <meta name="keywords" content="биохакинг, магний, клетчатка, здоровье, протоколы питания, долголетие">
-    
-    <meta property="og:title" content="HealthLogic — Твой гид в мире биохакинга">
-    <meta property="og:description" content="Разбираем сложные медицинские исследования в простые и понятные протоколы.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1505751172177-5180c4fe2474?auto=format&fit=crop&w=1200">
-    <meta property="og:type" content="website">
-
+    <title>HealthLogic | Протоколы биохакинга</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Твой предыдущий CSS стиль здесь */
+        :root { --accent: #0071e3; --bg: #f5f5f7; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1d1d1f; }
+        nav { position: sticky; top: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: -1px; }
+
+        .hero { padding: 100px 5% 60px; text-align: center; }
+        .hero h1 { font-size: clamp(40px, 8vw, 100px); font-weight: 900; letter-spacing: -4px; margin: 0; line-height: 0.9; }
+
+        /* FIXED BENTO GRID (ТРЕЙНИНГ, МАГНИЙ, КЛЕТЧАТКА) */
+        .bento { padding: 0 5% 60px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+        .bento-card { border-radius: 30px; padding: 40px; text-decoration: none; color: inherit; position: relative; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .bento-card:hover { transform: scale(1.02); box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
+        
+        /* Цвета для ключевых статей */
+        .card-training { grid-column: span 8; background: #000; color: #fff; height: 450px; }
+        .card-magnesium { grid-column: span 4; background: #fff; height: 450px; }
+        .card-fiber { grid-column: span 12; background: var(--accent); color: #fff; height: 300px; }
+
+        .bento-card h2 { font-size: 42px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
+        .bento-card small { text-transform: uppercase; font-weight: 700; opacity: 0.7; font-size: 12px; letter-spacing: 2px; }
+
+        /* DYNAMIC FEED (ИЗ БАЗЫ) */
+        .feed { padding: 40px 5%; border-top: 1px solid #e5e5e5; }
+        .article-link { display: flex; justify-content: space-between; padding: 25px 0; border-bottom: 1px solid #e5e5e5; text-decoration: none; color: inherit; font-size: 20px; font-weight: 600; }
+        .article-link:hover { color: var(--accent); padding-left: 15px; }
+
+        @media (max-width: 900px) { .bento-card { grid-column: span 12 !important; height: auto !important; } }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">HEALTHLOGIC</div>
-    <div class="nav-links">
-        <a href="index.html">Главная</a>
-        <span id="adm-link" style="display:none;"><a href="admin.html">Админка</a></span>
-        <a href="login.html" id="l-btn">Вход</a>
-        <button id="o-btn" style="display:none;" onclick="firebase.auth().signOut()">Выход</button>
+    <div class="nav-links" id="nav-links">
+        <a href="login.html" id="login-btn" style="text-decoration:none; color:#000; font-weight:600;">Вход</a>
     </div>
 </nav>
 
-<section class="hero">
-    <h1>Future<br>Health.</h1>
+<header class="hero">
+    <h1>Future<br>Biohacking.</h1>
+</header>
+
+<section class="bento">
+    <a href="training.html" class="bento-card card-training">
+        <small>Protocol 01 / Core</small>
+        <h2>Training<br>System.</h2>
+        <p>Оптимизация гипертрофии и силы.</p>
+    </a>
+    <a href="magnesium.html" class="bento-card card-magnesium">
+        <small>Protocol 02 / Essentials</small>
+        <h2>Magnesium.</h2>
+        <p>Фундамент нервной системы.</p>
+    </a>
+    <a href="fiber.html" class="bento-card card-fiber">
+        <small>Protocol 03 / Gut Health</small>
+        <h2>Fiber Architecture.</h2>
+        <p>Микробиом и долголетие через клетчатку.</p>
+    </a>
 </section>
 
-<div class="top-container" id="top-list"></div>
-<div class="feed" id="main-feed"></div>
+<section class="feed">
+    <h3 style="text-transform: uppercase; letter-spacing: 2px; font-size: 12px; margin-bottom: 30px;">Новые исследования</h3>
+    <div id="dynamic-posts"></div>
+</section>
 
 <script>
-    // AUTH LOGIC
+    // Проверка админа для меню
     firebase.auth().onAuthStateChanged(u => {
-        document.getElementById('adm-link').style.display = u ? 'inline' : 'none';
-        document.getElementById('o-btn').style.display = u ? 'inline' : 'none';
-        document.getElementById('l-btn').style.display = u ? 'none' : 'inline';
+        if(u) document.getElementById('nav-links').innerHTML = `<a href="admin.html" style="text-decoration:none; color:var(--accent); font-weight:600;">Админка</a>`;
     });
 
-    // CONTENT LOADING
-    db.ref('articles').orderByChild('date').on('value', snap => {
+    // Загрузка динамических статей
+    db.ref('articles').on('value', snap => {
         const data = snap.val(); if(!data) return;
         const list = Object.keys(data).map(k => ({id: k, ...data[k]})).reverse();
-
-        const topArea = document.getElementById('top-list');
-        topArea.innerHTML = "";
-        list.slice(0, 3).forEach((p, i) => {
-            topArea.innerHTML += `
-                <a href="article.html?id=${p.id}" class="top-card">
-                    <small>Protocol 0${i+1}</small>
-                    <h2>${p.title}</h2>
-                </a>
-            `;
-        });
-
-        const feedArea = document.getElementById('main-feed');
-        feedArea.innerHTML = "";
-        list.slice(3).forEach(p => {
-            feedArea.innerHTML += `
-                <a href="article.html?id=${p.id}" class="article-row">
-                    <h3>${p.title}</h3>
-                    <span>${new Date(p.date).toLocaleDateString()} →</span>
-                </a>
-            `;
+        const area = document.getElementById('dynamic-posts');
+        area.innerHTML = "";
+        
+        list.forEach(p => {
+            // Проверяем, чтобы не дублировать основные статьи, если они есть в базе
+            if(!['training','magnesium','fiber'].includes(p.id)) {
+                area.innerHTML += `
+                    <a href="article.html?id=${p.id}" class="article-link">
+                        <span>${p.title}</span>
+                        <span>→</span>
+                    </a>`;
+            }
         });
     });
 </script>
