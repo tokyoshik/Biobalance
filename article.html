@@ -2,83 +2,172 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>HL | Статья</title>
+    <title>HealthLogic | Статья</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
     <style>
-        :root { --border: 4px solid #000; }
-        body { font-family: 'Inter', sans-serif; background: #FDF5E6; padding: 40px 20px; }
+        :root { --border: 4px solid #000; --bg: #FDF5E6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; color: #000; line-height: 1.6; padding: 20px; }
+        
         .container { max-width: 800px; margin: 0 auto; }
-        .title { font-weight: 900; font-size: 50px; text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
-        .content { display: flex; flex-wrap: wrap; gap: 20px; margin: 30px 0; }
-        .w-50 { width: calc(50% - 10px); } .w-100 { width: 100%; }
-        img { width: 100%; border: var(--border); }
-        .like-sec { border-top: var(--border); padding: 20px 0; }
-        .like-btn { padding: 15px; border: var(--border); background: #fff; font-weight: 900; cursor: pointer; }
-        .like-btn.active { background: #ff4444; color: #fff; }
-        .comm-box { background: #fff; border: var(--border); padding: 20px; margin-top: 20px; }
+        .back { display: inline-block; margin-bottom: 20px; font-weight: 900; text-transform: uppercase; color: #000; text-decoration: none; border-bottom: 3px solid #000; }
+
+        .article-title { font-weight: 900; font-size: clamp(30px, 5vw, 55px); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
+        .main-img { width: 100%; border: var(--border); box-shadow: 10px 10px 0px #000; margin-bottom: 30px; object-fit: cover; }
+
+        /* Сетка контента */
+        #content-area { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 50px; }
+        .w-100 { width: 100%; }
+        .w-50 { width: calc(50% - 10px); }
+        .block-text { font-size: 18px; font-weight: 500; }
+        .block-img { width: 100%; border: var(--border); display: block; }
+
+        /* Лайки */
+        .like-box { border-top: var(--border); padding: 20px 0; margin-bottom: 30px; }
+        .btn-like { background: #fff; border: var(--border); padding: 12px 25px; font-weight: 900; cursor: pointer; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .btn-like.active { background: #ff4444; color: #fff; }
+
+        /* Комменты */
+        .comm-section { background: #fff; border: var(--border); padding: 25px; box-shadow: 8px 8px 0px #000; }
+        .comm-item { border-bottom: 2px solid #eee; padding: 15px 0; }
+        .comm-author { font-weight: 900; text-transform: uppercase; font-size: 12px; color: #555; }
+        
+        .comm-form textarea { width: 100%; border: var(--border); padding: 15px; font-family: inherit; font-weight: 700; margin-top: 15px; outline: none; min-height: 100px; }
+        .comm-form button { background: #000; color: #fff; border: none; padding: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; margin-top: 10px; width: 100%; }
+
+        @media (max-width: 600px) { .w-50 { width: 100%; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="a-title" class="title">Загрузка...</h1>
-        <img id="a-main-img" src="" style="display:none; margin-bottom: 20px;">
-        <div id="a-content" class="content"></div>
 
-        <div class="like-sec">
-            <button id="l-btn" class="like-btn" onclick="tLike()">❤️ <span id="l-count">0</span></button>
-        </div>
+<div class="container">
+    <a href="index.html" class="back">← На главную</a>
+    
+    <h1 id="a-title" class="article-title">Загрузка...</h1>
+    <img id="a-main-img" class="main-img" src="" style="display:none;">
 
-        <div class="comm-box">
-            <div id="c-list"></div>
-            <textarea id="c-input" style="width:100%; margin-top:10px;" placeholder="Ваш коммент..."></textarea>
-            <button onclick="sComm()" style="width:100%; padding:10px; background:#000; color:#fff; border:none; margin-top:5px; font-weight:900;">ОТПРАВИТЬ</button>
-        </div>
+    <div id="content-area"></div>
+
+    <div class="like-box">
+        <button id="l-btn" class="btn-like" onclick="handleLike()">
+            ❤️ <span id="l-count">0</span>
+        </button>
     </div>
 
-    <script>
-        const id = new URLSearchParams(window.location.search).get('id');
-        if(!id) location.href='index.html';
+    <section class="comm-section">
+        <h2 style="font-weight: 900; text-transform: uppercase; margin-bottom: 15px;">Комментарии</h2>
+        <div id="c-list"></div>
 
-        db.ref('articles/'+id).on('value', snap => {
-            const d = snap.val(); if(!d) return;
-            document.getElementById('a-title').innerText = d.title;
-            if(d.image) { const i = document.getElementById('a-main-img'); i.src = d.image; i.style.display='block'; }
-            const cont = document.getElementById('a-content'); cont.innerHTML = '';
-            d.blocks.forEach(b => {
+        <div id="c-form" class="comm-form" style="display:none;">
+            <textarea id="c-input" placeholder="Ваше мнение..."></textarea>
+            <button onclick="handleComment()">Отправить</button>
+        </div>
+        <p id="c-msg" style="display:none; font-weight:700; text-align:center;">Войдите, чтобы писать комментарии.</p>
+    </section>
+</div>
+
+<script>
+    // Получаем ID статьи из ссылки
+    const urlParams = new URLSearchParams(window.location.search);
+    const articleId = urlParams.get('id');
+
+    if (!articleId) { window.location.href = 'index.html'; }
+
+    // 1. ЗАГРУЗКА СТАТЬИ
+    db.ref('articles/' + articleId).on('value', snap => {
+        const data = snap.val();
+        if (!data) return;
+
+        document.getElementById('a-title').innerText = data.title;
+        if (data.image) {
+            const img = document.getElementById('a-main-img');
+            img.src = data.image;
+            img.style.display = 'block';
+        }
+
+        const area = document.getElementById('content-area');
+        area.innerHTML = '';
+        if (data.blocks) {
+            data.blocks.forEach(b => {
                 const div = document.createElement('div');
                 div.className = b.width === '50' ? 'w-50' : 'w-100';
-                div.innerHTML = b.type === 'text' ? `<p>${b.content}</p>` : `<img src="${b.content}">`;
-                cont.appendChild(div);
+                if (b.type === 'text') div.innerHTML = `<p class="block-text">${b.content}</p>`;
+                else if (b.type === 'image') div.innerHTML = `<img src="${b.content}" class="block-img">`;
+                area.appendChild(div);
             });
-        });
+        }
+    });
 
-        function tLike() {
-            const u = auth.currentUser; if(!u) return alert("Войди!");
-            const r = db.ref(`likes/${id}/${u.uid}`);
-            r.once('value').then(s => s.exists() ? r.remove() : r.set(true));
+    // 2. ЛАЙКИ
+    function handleLike() {
+        const u = auth.currentUser;
+        if (!u) return alert("Войдите в аккаунт!");
+        const ref = db.ref(`likes/${articleId}/${u.uid}`);
+        ref.once('value').then(s => s.exists() ? ref.remove() : ref.set(true));
+    }
+
+    db.ref(`likes/${articleId}`).on('value', snap => {
+        const likes = snap.val() || {};
+        document.getElementById('l-count').innerText = Object.keys(likes).length;
+        const btn = document.getElementById('l-btn');
+        if (auth.currentUser && likes[auth.currentUser.uid]) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
+
+    // 3. КОММЕНТАРИИ (С ПРОВЕРКОЙ ИМЕНИ "ТОКИО")
+    async function handleComment() {
+        const text = document.getElementById('c-input').value;
+        const user = auth.currentUser;
+        if (!text.trim() || !user) return;
+
+        // Пытаемся достать ник из профиля или из базы данных
+        let nickname = user.displayName;
+        if (!nickname) {
+            const userSnap = await db.ref(`users/${user.uid}`).once('value');
+            const userData = userSnap.val();
+            nickname = userData ? (userData.username || userData.name) : "Аноним";
         }
 
-        db.ref(`likes/${id}`).on('value', s => {
-            const l = s.val() || {};
-            document.getElementById('l-count').innerText = Object.keys(l).length;
-            const b = document.getElementById('l-btn');
-            if(auth.currentUser && l[auth.currentUser.uid]) b.classList.add('active');
-            else b.classList.remove('active');
+        db.ref(`comments/${articleId}`).push({
+            uid: user.uid,
+            author: nickname,
+            text: text,
+            date: Date.now()
+        }).then(() => {
+            document.getElementById('c-input').value = '';
         });
+    }
 
-        function sComm() {
-            const t = document.getElementById('c-input').value;
-            const u = auth.currentUser; if(!t || !u) return;
-            db.ref(`comments/${id}`).push({ author: u.displayName || "Аноним", text: t }).then(() => { document.getElementById('c-input').value = ''; });
+    db.ref(`comments/${articleId}`).on('value', snap => {
+        const list = document.getElementById('c-list');
+        list.innerHTML = '';
+        snap.forEach(child => {
+            const c = child.val();
+            list.innerHTML += `
+                <div class="comm-item">
+                    <span class="comm-author">${c.author}</span>
+                    <p style="font-weight:600;">${c.text}</p>
+                </div>
+            `;
+        });
+    });
+
+    // 4. ПРОВЕРКА ВХОДА
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('c-form').style.display = 'block';
+            document.getElementById('c-msg').style.display = 'none';
+        } else {
+            document.getElementById('c-form').style.display = 'none';
+            document.getElementById('c-msg').style.display = 'block';
         }
-
-        db.ref(`comments/${id}`).on('value', s => {
-            const list = document.getElementById('c-list'); list.innerHTML = '';
-            s.forEach(c => { const v = c.val(); list.innerHTML += `<p><b>${v.author}:</b> ${v.text}</p>`; });
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
