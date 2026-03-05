@@ -3,74 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Протокол</title>
+    <title>HL | Протокол</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; background: #fafafa; color: #111; margin: 0; padding: 0; line-height: 1.6; }
-        .container { max-width: 750px; margin: 0 auto; padding: 60px 20px; }
+        :root { --accent: #00ff41; --bg: #0a0a0a; --card: #141414; }
+        body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; margin: 0; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         
-        /* Заголовок: мощный и четкий */
-        h1 { font-size: 52px; font-weight: 900; line-height: 1.05; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 40px; }
-        
-        /* Контейнер для блоков контента */
-        .content-area { display: flex; flex-direction: column; gap: 30px; }
+        /* СТИЛЬ И ТИПОГРАФИКА */
+        h1 { font-size: clamp(32px, 5vw, 64px); font-weight: 900; text-transform: uppercase; letter-spacing: -2px; margin-bottom: 30px; animation: slideUp 0.8s ease; }
+        .txt { font-size: 18px; color: #ccc; margin-bottom: 25px; }
+        .img-wrap img { width: 100%; border-radius: 20px; border: 1px solid #333; margin: 20px 0; box-shadow: 0 0 30px rgba(0,255,65,0.1); }
 
-        /* Текстовый блок: читабельный шрифт */
-        .txt { font-size: 20px; color: #333; white-space: pre-wrap; }
+        /* ИНТЕРАКТИВ: ЛАЙКИ */
+        .actions { display: flex; align-items: center; gap: 20px; padding: 30px 0; border-top: 1px solid #222; margin-top: 50px; }
+        .like-btn { background: none; border: 2px solid var(--accent); color: var(--accent); padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .like-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent); }
 
-        /* Блок изображения: исправляем размер и качество */
-        .img-wrap { width: 100%; border-radius: 8px; overflow: hidden; background: #eee; border: 1px solid #ddd; }
-        .img-wrap img { 
-            width: 100%; 
-            height: auto; 
-            display: block; 
-            object-fit: cover; /* Чтобы картинка не растягивалась уродливо */
-            max-height: 70vh; /* Ограничиваем высоту, чтобы не была на весь экран */
-        }
+        /* КОММЕНТАРИИ */
+        .comments-sec { margin-top: 50px; background: var(--card); padding: 30px; border-radius: 24px; border: 1px solid #222; }
+        .comm-input { width: 100%; background: #000; border: 1px solid #333; padding: 15px; color: #fff; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; }
+        .comm-item { border-bottom: 1px solid #222; padding: 15px 0; font-size: 14px; }
+        .comm-item b { color: var(--accent); display: block; margin-bottom: 5px; }
 
-        .meta { font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="meta">HealthLogic Protocol // 2026</div>
-        <h1 id="title-display">Загрузка...</h1>
-        <div id="content-display" class="content-area"></div>
+        <h1 id="v-title"></h1>
+        <div id="v-content"></div>
+
+        <div class="actions">
+            <button class="like-btn" onclick="addLike()">⚡️ <span id="like-count">0</span></button>
+            <span>ПРОТОКОЛ ИЗУЧЕН</span>
+        </div>
+
+        <div class="comments-sec">
+            <h3>ОБСУЖДЕНИЕ</h3>
+            <div id="comm-list"></div>
+            <input type="text" id="c-name" class="comm-input" placeholder="Ваше имя">
+            <textarea id="c-text" class="comm-input" rows="3" placeholder="Ваш комментарий..."></textarea>
+            <button class="like-btn" onclick="addComm()">ОТПРАВИТЬ</button>
+        </div>
     </div>
 
     <script>
         const id = new URLSearchParams(window.location.search).get('id');
         if(id) {
-            db.ref(`articles/${id}`).on('value', snap => {
-                const data = snap.val();
-                if(!data) return;
-
-                // Ставим заголовок
-                document.getElementById('title-display').innerText = data.title;
+            // Загрузка контента
+            db.ref(`articles/${id}`).on('value', s => {
+                const d = s.val(); if(!d) return;
+                document.getElementById('v-title').innerText = d.title;
+                document.getElementById('like-count').innerText = d.likes || 0;
                 
-                const area = document.getElementById('content-display');
-                area.innerHTML = "";
-
-                // Проходим по всем блокам из базы
-                if(data.blocks && Array.isArray(data.blocks)) {
-                    data.blocks.forEach(block => {
-                        if(block.type === 'text' && block.content) {
-                            const p = document.createElement('div');
-                            p.className = 'txt';
-                            p.innerText = block.content;
-                            area.appendChild(p);
-                        } 
-                        else if(block.type === 'image' && block.content) {
-                            const wrap = document.createElement('div');
-                            wrap.className = 'img-wrap';
-                            wrap.innerHTML = `<img src="${block.content}" loading="lazy" onerror="this.parentElement.style.display='none'">`;
-                            area.appendChild(wrap);
-                        }
-                    });
-                }
+                const area = document.getElementById('v-content'); area.innerHTML = "";
+                d.blocks?.forEach(b => {
+                    const el = document.createElement('div');
+                    if(b.type === 'text') { el.className = 'txt'; el.innerText = b.content; }
+                    else { el.className = 'img-wrap'; el.innerHTML = `<img src="${b.content}">`; }
+                    area.appendChild(el);
+                });
             });
+
+            // Загрузка комментов
+            db.ref(`comments/${id}`).on('value', s => {
+                const list = document.getElementById('comm-list'); list.innerHTML = "";
+                s.forEach(c => {
+                    const v = c.val();
+                    list.innerHTML += `<div class="comm-item"><b>${v.name}</b>${v.text}</div>`;
+                });
+            });
+        }
+
+        function addLike() {
+            db.ref(`articles/${id}/likes`).transaction(c => (c || 0) + 1);
+        }
+
+        function addComm() {
+            const n = document.getElementById('c-name').value;
+            const t = document.getElementById('c-text').value;
+            if(n && t) {
+                db.ref(`comments/${id}`).push({ name: n, text: t });
+                document.getElementById('c-text').value = "";
+            }
         }
     </script>
 </body>
