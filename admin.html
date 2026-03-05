@@ -2,68 +2,106 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>HL ADMIN | NO-STORAGE MODE</title>
+    <title>HL | EDITOR PRO</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #111; color: #fff; padding: 20px; }
-        .card { max-width: 600px; margin: 0 auto; background: #222; border: 4px solid #ffcc00; padding: 25px; }
-        .block { border: 2px solid #444; padding: 15px; margin-top: 15px; background: #000; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 10px; background: #111; color: #fff; border: 1px solid #ffcc00; box-sizing: border-box; }
-        .btn { padding: 10px; background: #ffcc00; color: #000; border: none; font-weight: 900; cursor: pointer; margin: 10px 5px 0 0; }
-        .save-btn { width: 100%; background: #00ff00; margin-top: 30px; font-size: 18px; }
+        :root { --bg: #ffffff; --black: #000000; --grey: #f5f5f7; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--grey); margin: 0; display: flex; justify-content: center; padding: 40px 20px; }
+        .editor-container { width: 100%; max-width: 800px; background: var(--bg); border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        input[type="text"], textarea { width: 100%; border: 1px solid #d2d2d7; border-radius: 12px; padding: 15px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input[type="text"]:focus { border-color: var(--black); }
+        
+        .title-input { font-size: 32px !important; font-weight: 700; border: none !important; padding: 0 !important; margin-bottom: 40px !important; }
+        
+        .block-card { background: var(--grey); border-radius: 15px; padding: 20px; margin-bottom: 20px; position: relative; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #86868b; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        
+        .controls { display: flex; gap: 10px; margin-top: 30px; border-top: 1px solid #e5e5e5; padding-top: 30px; }
+        .btn { padding: 12px 24px; border-radius: 980px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; font-size: 14px; }
+        .btn-add { background: var(--black); color: white; }
+        .btn-add:hover { opacity: 0.8; }
+        
+        .btn-save { background: #0071e3; color: white; margin-left: auto; padding: 12px 40px; }
+        .btn-del { position: absolute; top: 15px; right: 15px; background: none; color: #ff3b30; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2 style="color:#ffcc00">БЛОЧНЫЙ РЕДАКТОР v2.0</h2>
-    <input type="text" id="title" placeholder="ЗАГОЛОВОК СТАТЬИ">
-    <div id="editor"></div>
+<div class="editor-container">
+    <input type="text" id="postTitle" class="title-input" placeholder="Заголовок истории">
     
-    <button class="btn" onclick="add('text')">+ ТЕКСТ</button>
-    <button class="btn" onclick="add('image')">+ КАРТИНКА (URL)</button>
-    
-    <button class="btn save-btn" onclick="save()">ОПУБЛИКОВАТЬ В БАЗУ</button>
+    <div id="editor-canvas"></div>
+
+    <div class="controls">
+        <button class="btn btn-add" onclick="createBlock('text')">+ Текст</button>
+        <button class="btn btn-add" onclick="createBlock('image')">+ Изображение</button>
+        <button class="btn btn-save" onclick="handlePublish()">Опубликовать</button>
+    </div>
 </div>
 
 <script>
-    let blocks = [];
+    let activeBlocks = [];
 
-    function add(type) {
-        blocks.push({ id: Date.now(), type: type, content: "" });
-        render();
+    function createBlock(type) {
+        activeBlocks.push({ id: Date.now(), type: type, content: "" });
+        updateUI();
     }
 
-    function render() {
-        const root = document.getElementById('editor');
-        root.innerHTML = "";
-        blocks.forEach(b => {
-            const div = document.createElement('div');
-            div.className = "block";
-            div.innerHTML = `
-                <strong>БЛОК: ${b.type.toUpperCase()}</strong>
+    function removeBlock(id) {
+        activeBlocks = activeBlocks.filter(b => b.id !== id);
+        updateUI();
+    }
+
+    function syncContent(id, value) {
+        const target = activeBlocks.find(b => b.id === id);
+        if (target) target.content = value;
+    }
+
+    function updateUI() {
+        const canvas = document.getElementById('editor-canvas');
+        canvas.innerHTML = "";
+        activeBlocks.forEach(b => {
+            const el = document.createElement('div');
+            el.className = "block-card";
+            el.innerHTML = `
+                <span class="label">${b.type === 'text' ? 'Абзац текста' : 'Ссылка на фото'}</span>
+                <button class="btn-del" onclick="removeBlock(${b.id})">Удалить</button>
                 ${b.type === 'text' 
-                    ? `<textarea oninput="update(${b.id}, this.value)" placeholder="Пиши текст тут..."></textarea>`
-                    : `<input type="text" oninput="update(${b.id}, this.value)" placeholder="Вставь ссылку на картинку (http...)">`
+                    ? `<textarea oninput="syncContent(${b.id}, this.value)" rows="4" placeholder="Начните писать...">${b.content}</textarea>`
+                    : `<input type="text" oninput="syncContent(${b.id}, this.value)" value="${b.content}" placeholder="https://example.com/image.jpg">`
                 }
             `;
-            root.appendChild(div);
+            canvas.appendChild(el);
         });
     }
 
-    function update(id, val) {
-        blocks.find(x => x.id === id).content = val;
-    }
+    async function handlePublish() {
+        const title = document.getElementById('postTitle').value;
+        if(!title || activeBlocks.length === 0) return alert("Добавьте заголовок и контент");
 
-    async function save() {
-        const t = document.getElementById('title').value;
-        if(!t || blocks.length === 0) return alert("Заполни всё!");
-        await db.ref('articles').push({ title: t, blocks: blocks, time: Date.now() });
-        alert("ГОТОВО! Проверяй статью.");
-        location.reload();
+        const finalData = {
+            title: title,
+            blocks: activeBlocks,
+            createdAt: Date.now(),
+            views: 0
+        };
+
+        try {
+            // Используем db.ref, как в твоем components.js
+            await db.ref('articles').push(finalData);
+            alert("Протокол обновлен успешно");
+            location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("Ошибка соединения с базой");
+        }
     }
 </script>
+
 </body>
 </html>
