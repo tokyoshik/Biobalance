@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthLogic | Админ-панель</title>
+    <title>HealthLogic | Admin Dashboard</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -12,60 +12,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        :root { --bg: #f4f4f4; --black: #000; --border: 3px solid #000; --accent: #DED7B1; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; padding: 20px; }
+        :root { --bg: #f0f0f0; --white: #fff; --black: #000; --accent: #DED7B1; --border: 4px solid #000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; padding: 40px 20px; }
+
+        .dashboard, .editor { max-width: 1000px; margin: 0 auto; }
         
-        .admin-container { max-width: 900px; margin: 0 auto; background: #fff; border: var(--border); box-shadow: 10px 10px 0px #000; padding: 30px; }
-        h1 { font-weight: 900; text-transform: uppercase; margin-bottom: 20px; border-bottom: var(--border); padding-bottom: 10px; }
+        /* Кнопка Создать */
+        .btn-create { 
+            background: var(--black); color: var(--white); border: var(--border);
+            padding: 20px 40px; font-weight: 900; text-transform: uppercase;
+            cursor: pointer; font-size: 20px; box-shadow: 10px 10px 0px var(--accent);
+            margin-bottom: 40px; display: block; width: fit-content; transition: 0.2s;
+        }
+        .btn-create:hover { transform: translate(-5px, -5px); box-shadow: 15px 15px 0px var(--black); }
 
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 900; text-transform: uppercase; font-size: 12px; margin-bottom: 8px; }
-        input, textarea, select { width: 100%; padding: 12px; border: var(--border); font-family: inherit; font-weight: 700; outline: none; }
+        /* Список статей */
+        .article-item { 
+            background: #fff; border: var(--border); padding: 20px; 
+            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .article-info h3 { font-weight: 900; text-transform: uppercase; font-size: 16px; }
+        .btn-delete { background: #ff4444; color: #fff; border: 2px solid #000; padding: 8px 15px; font-weight: 900; cursor: pointer; }
 
-        /* Конструктор */
-        #constructor-area { background: #fafafa; border: 2px dashed #000; padding: 20px; margin: 20px 0; }
-        .block-item { background: #fff; border: var(--border); padding: 15px; margin-bottom: 15px; position: relative; display: flex; flex-direction: column; gap: 10px; }
-        .block-item.half { width: 48%; display: inline-flex; vertical-align: top; }
+        /* Окно редактора (скрыто по умолчанию) */
+        #editor-view { display: none; background: #fff; border: var(--border); padding: 30px; box-shadow: 15px 15px 0px #000; }
         
-        .block-controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-add { background: var(--accent); color: #000; border: var(--border); padding: 10px 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px; }
-        .btn-add:hover { background: #000; color: #fff; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; font-weight: 900; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; }
+        input, textarea, select { width: 100%; padding: 15px; border: var(--border); font-family: inherit; font-weight: 700; outline: none; background: #fafafa; }
 
-        .btn-publish { width: 100%; background: #000; color: #fff; border: none; padding: 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 18px; margin-top: 20px; }
+        .block-item { background: #fdfdfd; border: 2px solid #000; padding: 15px; margin-bottom: 15px; position: relative; }
+        .block-item.w50 { width: calc(50% - 10px); display: inline-block; vertical-align: top; margin-right: 10px; }
+
+        .btn-publish { background: #000; color: #fff; border: none; padding: 20px; width: 100%; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 18px; }
         .btn-publish:hover { background: var(--accent); color: #000; }
-
-        .remove-btn { position: absolute; top: -10px; right: -10px; background: red; color: #fff; border: 2px solid #000; width: 25px; height: 25px; cursor: pointer; font-weight: 900; }
+        .btn-cancel { background: none; border: none; font-weight: 900; cursor: pointer; text-decoration: underline; margin-top: 20px; display: block; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <h1>Создать новую статью</h1>
-
-    <div class="form-group">
-        <label>Заголовок статьи</label>
-        <input type="text" id="post-title" placeholder="Введите название...">
+    <div id="dashboard-view" class="dashboard">
+        <h1 style="font-weight: 900; text-transform: uppercase; margin-bottom: 30px;">Управление контентом</h1>
+        <button class="btn-create" onclick="openEditor()">+ Создать статью</button>
+        
+        <div id="articles-list">
+            </div>
     </div>
 
-    <div class="form-group">
-        <label>Главная обложка (URL картинки)</label>
-        <input type="text" id="post-main-img" placeholder="https://example.com/image.jpg">
-    </div>
+    <div id="editor-view" class="editor">
+        <h1 style="font-weight: 900; text-transform: uppercase; margin-bottom: 30px;">Новая публикация</h1>
+        
+        <div class="form-group">
+            <label>Название статьи</label>
+            <input type="text" id="post-title" placeholder="Как заголовок в журнале...">
+        </div>
 
-    <div id="constructor-area">
-        <label>Конструктор контента</label>
+        <div class="form-group">
+            <label>Главная обложка (URL)</label>
+            <input type="text" id="post-main-img" placeholder="Ссылка на красивое фото...">
+        </div>
+
         <div id="blocks-container">
             </div>
 
-        <div class="block-controls">
-            <button class="btn-add" onclick="addBlock('text')">+ Добавить текст</button>
-            <button class="btn-add" onclick="addBlock('image')">+ Добавить фото</button>
-        </div>
+        <button class="btn-publish" onclick="saveArticle()">Опубликовать на сайт</button>
+        <button class="btn-cancel" onclick="location.reload()">Отмена</button>
     </div>
-
-    <button class="btn-publish" onclick="publishArticle()">Опубликовать на сайт</button>
-    <a href="index.html" style="display:block; text-align:center; margin-top:20px; color:#000; font-weight:800; text-transform:uppercase; font-size:12px;">Вернуться на главную</a>
-</div>
 
 <script>
     const firebaseConfig = {
@@ -80,61 +93,91 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function addBlock(type) {
-        const container = document.getElementById('blocks-container');
-        const id = Date.now();
-        const block = document.createElement('div');
-        block.className = 'block-item';
-        block.id = 'block-' + id;
-
-        let contentHtml = '';
-        if (type === 'text') {
-            contentHtml = `<textarea class="b-data" data-type="text" placeholder="Ваш текст..." rows="4"></textarea>`;
-        } else {
-            contentHtml = `<input type="text" class="b-data" data-type="image" placeholder="URL картинки...">`;
-        }
-
-        block.innerHTML = `
-            <button class="remove-btn" onclick="document.getElementById('block-${id}').remove()">✕</button>
-            <label>${type === 'text' ? 'Текстовый блок' : 'Блок изображения'}</label>
-            ${contentHtml}
-            <select class="b-width">
-                <option value="100">Ширина: 100%</option>
-                <option value="50">Ширина: 50% (в ряд)</option>
-            </select>
-        `;
-        container.appendChild(block);
+    // 1. ЗАГРУЗКА СПИСКА СТАТЕЙ
+    function loadDashboard() {
+        db.ref('articles').on('value', snap => {
+            const list = document.getElementById('articles-list');
+            list.innerHTML = '';
+            const data = snap.val();
+            if (data) {
+                Object.entries(data).reverse().forEach(([id, art]) => {
+                    const item = document.createElement('div');
+                    item.className = 'article-item';
+                    item.innerHTML = `
+                        <div class="article-info">
+                            <h3>${art.title}</h3>
+                        </div>
+                        <button class="btn-delete" onclick="deleteArticle('${id}')">УДАЛИТЬ</button>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+        });
     }
 
-    function publishArticle() {
+    // 2. ОТКРЫТИЕ РЕДАКТОРА С ШАБЛОНОМ
+    function openEditor() {
+        document.getElementById('dashboard-view').style.display = 'none';
+        document.getElementById('editor-view').style.display = 'block';
+        
+        const container = document.getElementById('blocks-container');
+        container.innerHTML = '';
+
+        // Генерируем ШАБЛОН (как на картинке: Текст + Фото рядом)
+        const template = [
+            { type: 'text', width: '100', label: 'Вступление (на всю ширину)' },
+            { type: 'image', width: '50', label: 'Картинка слева' },
+            { type: 'text', width: '50', label: 'Текст справа' },
+            { type: 'text', width: '100', label: 'Основной контент' }
+        ];
+
+        template.forEach((item, index) => {
+            const id = Date.now() + index;
+            const block = document.createElement('div');
+            block.className = 'block-item ' + (item.width === '50' ? 'w50' : '');
+            block.innerHTML = `
+                <label>${item.label}</label>
+                ${item.type === 'text' 
+                    ? `<textarea class="b-data" data-type="text" data-width="${item.width}" rows="4"></textarea>`
+                    : `<input type="text" class="b-data" data-type="image" data-width="${item.width}" placeholder="URL...">`
+                }
+            `;
+            container.appendChild(block);
+        });
+    }
+
+    // 3. СОХРАНЕНИЕ
+    function saveArticle() {
         const title = document.getElementById('post-title').value;
         const mainImg = document.getElementById('post-main-img').value;
-        const blockElements = document.querySelectorAll('.block-item');
-        
+        const dataEls = document.querySelectorAll('.b-data');
+
         let blocks = [];
-        blockElements.forEach(item => {
-            const dataEl = item.querySelector('.b-data');
-            const widthEl = item.querySelector('.b-width');
-            blocks.push({
-                type: dataEl.getAttribute('data-type'),
-                content: dataEl.value,
-                width: widthEl.value
-            });
+        dataEls.forEach(el => {
+            if(el.value.trim() !== "") {
+                blocks.push({
+                    type: el.getAttribute('data-type'),
+                    width: el.getAttribute('data-width'),
+                    content: el.value
+                });
+            }
         });
 
-        if (!title || blocks.length === 0) return alert("Заполни заголовок и добавь хотя бы один блок!");
+        if (!title || blocks.length === 0) return alert("Заполни хотя бы заголовок и один блок!");
 
-        const newPostRef = db.ref('articles').push();
-        newPostRef.set({
-            title: title,
-            image: mainImg,
-            blocks: blocks,
-            timestamp: Date.now()
+        db.ref('articles').push({
+            title, image: mainImg, blocks, timestamp: Date.now()
         }).then(() => {
-            alert("Статья успешно создана!");
-            window.location.href = "index.html";
-        }).catch(err => alert(err.message));
+            alert("Статья опубликована!");
+            location.reload();
+        });
     }
+
+    function deleteArticle(id) {
+        if(confirm("Удалить статью?")) db.ref('articles/' + id).remove();
+    }
+
+    loadDashboard();
 </script>
 
 </body>
