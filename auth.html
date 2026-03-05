@@ -14,69 +14,44 @@
     <style>
         :root { --bg: #FDF5E6; --black: #000; --border: 4px solid #000; --accent: #DED7B1; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; }
 
-        .auth-container {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 20px;
-        }
-
-        .auth-box {
-            background: #fff;
-            border: var(--border);
-            box-shadow: 12px 12px 0px #000;
-            padding: 30px;
-        }
-
+        .auth-container { max-width: 400px; margin: 60px auto; padding: 20px; }
+        .auth-box { background: #fff; border: var(--border); box-shadow: 12px 12px 0px #000; padding: 30px; }
         h1 { font-weight: 900; text-transform: uppercase; font-size: 28px; margin-bottom: 25px; text-align: center; }
 
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 8px; }
         
         input {
-            width: 100%;
-            padding: 15px;
-            border: var(--border);
-            font-family: inherit;
-            font-weight: 700;
-            outline: none;
-            background: #f9f9f9;
+            width: 100%; padding: 15px; border: var(--border); font-family: inherit;
+            font-weight: 700; outline: none; background: #f9f9f9;
         }
         input:focus { background: var(--accent); }
 
         .btn {
-            width: 100%;
-            padding: 18px;
-            background: #000;
-            color: #fff;
-            border: none;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-bottom: 15px;
+            width: 100%; padding: 18px; background: #000; color: #fff; border: none;
+            font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-bottom: 15px;
         }
         .btn:hover { background: var(--accent); color: #000; transform: translate(-3px, -3px); box-shadow: 6px 6px 0px #000; }
 
-        .toggle-auth {
-            text-align: center;
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 11px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        header#main-header { position: sticky; top: 0; z-index: 1000; }
+        .toggle-auth { text-align: center; font-weight: 800; text-transform: uppercase; font-size: 11px; cursor: pointer; text-decoration: underline; }
+        header#main-header { width: 100%; position: sticky; top: 0; z-index: 1000; background: #fff; border-bottom: var(--border); }
+        .header-nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; max-width: 1200px; margin: 0 auto; }
+        .logo { font-size: 20px; font-weight: 900; text-decoration: none; color: #000; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <header id="main-header"></header>
+    <header id="main-header">
+        <div class="header-nav">
+            <a href="index.html" class="logo">HealthLogic.</a>
+            <div id="auth-status"></div>
+        </div>
+    </header>
 
     <div class="auth-container">
-        <div class="auth-box" id="login-form">
+        <div class="auth-box" id="login-box">
             <h1>Вход</h1>
             <div class="input-group">
                 <label>Email</label>
@@ -87,29 +62,30 @@
                 <input type="password" id="login-password" placeholder="******">
             </div>
             <button class="btn" onclick="signIn()">Войти</button>
-            <div class="toggle-auth" onclick="toggleForm('register-form')">Нет аккаунта? Создать</div>
+            <div class="toggle-auth" onclick="toggleForm('reg')">Нет аккаунта? Создать</div>
         </div>
 
-        <div class="auth-box" id="register-form" style="display: none;">
+        <div class="auth-box" id="reg-box" style="display: none;">
             <h1>Регистрация</h1>
             <div class="input-group">
-                <label>Имя (как вас называть?)</label>
-                <input type="text" id="reg-name" placeholder="Дмитрий">
+                <label>Ваше Имя</label>
+                <input type="text" id="reg-name" placeholder="Иван">
             </div>
             <div class="input-group">
                 <label>Email</label>
                 <input type="email" id="reg-email" placeholder="example@mail.com">
             </div>
             <div class="input-group">
-                <label>Пароль (мин. 6 знаков)</label>
+                <label>Пароль</label>
                 <input type="password" id="reg-password" placeholder="******">
             </div>
-            <button class="btn" onclick="signUp()">Зарегистрироваться</button>
-            <div class="toggle-auth" onclick="toggleForm('login-form')">Уже есть аккаунт? Войти</div>
+            <button class="btn" onclick="signUp()">Создать аккаунт</button>
+            <div class="toggle-auth" onclick="toggleForm('login')">Уже есть аккаунт? Войти</div>
         </div>
     </div>
 
     <script>
+        // 2. КОНФИГ (Твой личный ключ)
         const firebaseConfig = {
             apiKey: "AIzaSyBgjwzfctB0Z9Lyak4WXTo_wxb2vS5L-rs",
             authDomain: "healthlogic-fe5bd.firebaseapp.com",
@@ -124,20 +100,19 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        function toggleForm(id) {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
+        // Переключение между формами
+        function toggleForm(mode) {
+            document.getElementById('login-box').style.display = mode === 'login' ? 'block' : 'none';
+            document.getElementById('reg-box').style.display = mode === 'reg' ? 'block' : 'none';
         }
 
         // ВХОД
         function signIn() {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
-
             auth.signInWithEmailAndPassword(email, pass)
                 .then(() => window.location.href = "index.html")
-                .catch(err => showToast("Ошибка: " + err.message));
+                .catch(err => showToast(err.message));
         }
 
         // РЕГИСТРАЦИЯ
@@ -146,26 +121,22 @@
             const email = document.getElementById('reg-email').value;
             const pass = document.getElementById('reg-password').value;
 
-            if (!name) return showToast("Введите имя!");
+            if (!name || !email || !pass) return showToast("Заполни все поля!");
 
             auth.createUserWithEmailAndPassword(email, pass)
                 .then((result) => {
                     const user = result.user;
-                    // Создаем запись пользователя в базе
+                    // Сохраняем имя в базу
                     db.ref('users/' + user.uid).set({
                         username: name,
                         role: 'user'
                     }).then(() => {
-                        // Отправляем письмо подтверждения
-                        user.sendEmailVerification();
-                        showToast("Регистрация успешна! Подтвердите почту.");
-                        setTimeout(() => window.location.href = "index.html", 2000);
+                        window.location.href = "index.html";
                     });
                 })
-                .catch(err => showToast("Ошибка: " + err.message));
+                .catch(err => showToast(err.message));
         }
     </script>
     <script src="components.js"></script>
-
 </body>
 </html>
