@@ -2,119 +2,142 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>HL | COMMAND CENTER</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="components.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления | HEALTHLOGIC</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #0071e3; --bg: #f5f5f7; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; display: none; color: #1d1d1f; }
-        .sidebar { width: 250px; position: fixed; height: 100vh; background: #fff; border-right: 1px solid #d2d2d7; padding: 30px; box-sizing: border-box; }
-        .main { margin-left: 250px; padding: 40px; }
+        body { padding-top: 80px; background: #f5f5f7; }
+        .admin-container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: #fff; padding: 30px; border-radius: 32px; border: 1px solid rgba(0,0,0,0.05); animation: appleReveal 0.6s backwards; }
+        .stat-card h3 { font-size: 48px; margin: 0; letter-spacing: -2px; }
+        .stat-card p { color: #86868b; margin: 5px 0 0 0; font-weight: 600; }
         
-        .card { background: #fff; border-radius: 18px; padding: 25px; margin-bottom: 25px; border: 1px solid #d2d2d7; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .editor-section { background: #fff; padding: 40px; border-radius: 32px; margin-bottom: 40px; border: 1px solid rgba(0,0,0,0.05); }
+        .input-field { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #d2d2d7; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; }
         
-        h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-        .btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-blue { background: var(--blue); color: #fff; }
-        .btn-del { background: #ff3b30; color: #fff; padding: 5px 10px; font-size: 12px; }
-
-        input, textarea { width: 100%; border: 1px solid #d2d2d7; border-radius: 10px; padding: 12px; margin-top: 10px; box-sizing: border-box; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f7; }
+        .article-manager { display: grid; gap: 15px; }
+        .manage-item { background: #fff; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05); }
+        .delete-btn { background: #ff3b30; color: #fff; padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+        
+        /* Скрытие контента до проверки */
+        #admin-content { display: none; }
     </style>
 </head>
-<body id="adminPanel">
+<body>
 
-<div class="sidebar">
-    <h2>HL Admin</h2>
-    <p style="font-size: 13px; color: #86868b;">Система активна</p>
-    <br>
-    <button class="btn" style="width:100%" onclick="firebase.auth().signOut()">Выход</button>
-</div>
+<div id="admin-content" class="admin-container">
+    <h1 style="font-weight: 800; letter-spacing: -1px; margin-bottom: 30px;">Системный контроль.</h1>
 
-<div class="main">
-    <div class="stat-grid">
-        <div class="card">
-            <small>Всего лайков</small>
-            <h2 id="totalLikes">0</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 id="total-articles-count">0</h3>
+            <p>Статей в базе</p>
         </div>
-        <div class="card">
-            <small>Всего статей</small>
-            <h2 id="totalArticles">0</h2>
+        <div class="stat-card">
+            <h3 id="total-likes-count">0</h3>
+            <p>Всего лайков</p>
         </div>
     </div>
 
-    <div class="card">
-        <h1>Создать Протокол</h1>
-        <input type="text" id="postTitle" placeholder="Заголовок">
-        <div id="editor"></div>
-        <div style="margin-top:20px; gap: 10px; display:flex;">
-            <button class="btn" onclick="addBlock('text')">+ Текст</button>
-            <button class="btn" onclick="addBlock('image')">+ Изображение</button>
-            <button class="btn btn-blue" style="margin-left:auto" onclick="publish()">Опубликовать</button>
-        </div>
+    <div class="editor-section">
+        <h2 style="margin-top:0">Новая публикация</h2>
+        <input type="text" id="post-title" class="input-field" placeholder="Заголовок статьи">
+        <textarea id="post-content" class="input-field" style="height: 150px;" placeholder="Основной текст..."></textarea>
+        <input type="text" id="post-image" class="input-field" placeholder="URL картинки (unsplash)">
+        <button id="publish-btn" style="width: 100%; background: #007aff;">Опубликовать в Bento Grid</button>
     </div>
 
-    <div class="card">
-        <h1>Управление статьями</h1>
-        <div id="articlesList"></div>
+    <div class="article-manager">
+        <h2 style="margin-bottom: 20px;">Управление статьями (Анти-мусор)</h2>
+        <div id="articles-list">
+            </div>
     </div>
 </div>
 
-<script>
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) { document.getElementById('adminPanel').style.display = 'block'; loadData(); }
-        else { window.location.href = "login.html"; }
+<script type="module">
+    import { auth, db } from './components.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const adminContent = document.getElementById('admin-content');
+    const adminEmail = "ТВОЯ_ПОЧТА@GMAIL.COM"; // <--- ОБЯЗАТЕЛЬНО ЗАМЕНИ НА СВОЙ EMAIL
+
+    // 1. ЗАЩИТА (Redirection Guard)
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email === adminEmail) {
+            adminContent.style.display = 'block';
+            initAdmin();
+        } else {
+            window.location.href = 'login.html';
+        }
     });
 
-    let blocks = [];
-    function addBlock(t) { blocks.push({ id: Date.now(), type: t, content: "" }); renderEditor(); }
-
-    function renderEditor() {
-        const ed = document.getElementById('editor'); ed.innerHTML = "";
-        blocks.forEach(b => {
-            const div = document.createElement('div');
-            div.innerHTML = b.type === 'text' 
-                ? `<textarea oninput="blocks.find(x=>x.id===${b.id}).content=this.value" placeholder="Контент..."></textarea>`
-                : `<input oninput="blocks.find(x=>x.id===${b.id}).content=this.value" placeholder="URL картинки">`;
-            ed.appendChild(div);
-        });
+    async function initAdmin() {
+        loadStats();
+        loadArticles();
     }
 
-    async function publish() {
-        const t = document.getElementById('postTitle').value;
-        if(!t || blocks.length === 0) return alert("Заполни поля");
-        await db.ref('articles').push({ title: t, blocks: blocks, date: Date.now(), likes: 0 });
-        location.reload();
+    // 2. СТАТИСТИКА
+    async function loadStats() {
+        const snap = await getDocs(collection(db, "articles"));
+        document.getElementById('total-articles-count').textContent = snap.size;
+        let likes = 0;
+        snap.forEach(d => likes += (d.data().likes || 0));
+        document.getElementById('total-likes-count').textContent = likes;
     }
 
-    function loadData() {
-        db.ref('articles').on('value', s => {
-            const data = s.val(); if(!data) return;
-            const arr = Object.keys(data).map(k => ({id: k, ...data[k]}));
-            
-            document.getElementById('totalArticles').innerText = arr.length;
-            document.getElementById('totalLikes').innerText = arr.reduce((sum, p) => sum + (p.likes || 0), 0);
-            
-            const list = document.getElementById('articlesList'); list.innerHTML = "";
-            arr.reverse().forEach(p => {
-                list.innerHTML += `
-                    <div class="list-item">
-                        <span>${p.title}</span>
-                        <button class="btn-del" onclick="deletePost('${p.id}')">Удалить</button>
-                    </div>`;
-            });
-        });
-    }
+    // 3. ПУБЛИКАЦИЯ
+    document.getElementById('publish-btn').onclick = async () => {
+        const title = document.getElementById('post-title').value;
+        const text = document.getElementById('post-content').value;
+        const img = document.getElementById('post-image').value;
 
-    function deletePost(id) {
-        if(confirm("Удалить статью?")) {
-            db.ref(`articles/${id}`).remove();
-            db.ref(`comments/${id}`).remove();
+        if(title.length < 3 || text.length < 10) {
+            alert("Слишком короткий контент! (Анти-мусор)");
+            return;
         }
+
+        await addDoc(collection(db, "articles"), {
+            title, text, img,
+            createdAt: serverTimestamp(),
+            likes: 0
+        });
+        location.reload();
+    };
+
+    // 4. СПИСОК И УДАЛЕНИЕ
+    async function loadArticles() {
+        const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        const list = document.getElementById('articles-list');
+        list.innerHTML = '';
+
+        snap.forEach(article => {
+            const data = article.data();
+            const div = document.createElement('div');
+            div.className = 'manage-item';
+            div.innerHTML = `
+                <div>
+                    <strong>${data.title}</strong>
+                    <p style="margin:0; font-size:12px; color:#888;">${new Date(data.createdAt?.toDate()).toLocaleDateString()}</p>
+                </div>
+                <button class="delete-btn" onclick="deleteArticle('${article.id}')">Удалить</button>
+            `;
+            list.appendChild(div);
+        });
     }
+
+    window.deleteArticle = async (id) => {
+        if(confirm("Удалить статью навсегда?")) {
+            await deleteDoc(doc(db, "articles", id));
+            loadArticles();
+            loadStats();
+        }
+    };
 </script>
+
 </body>
 </html>
