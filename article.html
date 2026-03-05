@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HL | Протокол</title>
+    <title>HealthLogic | Протокол</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="components.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --border: 4px solid #000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f5f5f5; font-family: 'Inter', sans-serif; padding: 20px; color: #000; }
-        .wrapper { max-width: 1000px; margin: 0 auto; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #fafafa; color: #111; margin: 0; padding: 0; line-height: 1.6; }
+        .container { max-width: 750px; margin: 0 auto; padding: 60px 20px; }
         
-        .post-title { font-size: clamp(35px, 8vw, 90px); font-weight: 900; text-transform: uppercase; line-height: 0.85; letter-spacing: -3px; margin-bottom: 30px; }
+        /* Заголовок: мощный и четкий */
+        h1 { font-size: 52px; font-weight: 900; line-height: 1.05; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 40px; }
         
-        /* Контейнер для блоков */
-        #article-content { display: flex; flex-direction: column; gap: 20px; }
+        /* Контейнер для блоков контента */
+        .content-area { display: flex; flex-direction: column; gap: 30px; }
 
-        /* Стиль текстового блока */
-        .b-text { background: #fff; border: var(--border); padding: 30px; font-size: 19px; font-weight: 600; line-height: 1.6; white-space: pre-wrap; box-shadow: 8px 8px 0 #000; }
-        
-        /* Стиль картинки */
-        .b-img { width: 100%; border: var(--border); display: block; box-shadow: 8px 8px 0 #000; object-fit: cover; }
+        /* Текстовый блок: читабельный шрифт */
+        .txt { font-size: 20px; color: #333; white-space: pre-wrap; }
 
-        .loading { font-weight: 900; text-transform: uppercase; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        /* Блок изображения: исправляем размер и качество */
+        .img-wrap { width: 100%; border-radius: 8px; overflow: hidden; background: #eee; border: 1px solid #ddd; }
+        .img-wrap img { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+            object-fit: cover; /* Чтобы картинка не растягивалась уродливо */
+            max-height: 70vh; /* Ограничиваем высоту, чтобы не была на весь экран */
+        }
+
+        .meta { font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <h1 id="view-title" class="post-title">ЗАГРУЗКА...</h1>
-        <div id="article-content">
-            <p class="loading">Синхронизация протокола...</p>
-        </div>
+    <div class="container">
+        <div class="meta">HealthLogic Protocol // 2026</div>
+        <h1 id="title-display">Загрузка...</h1>
+        <div id="content-display" class="content-area"></div>
     </div>
 
     <script>
@@ -45,35 +47,30 @@
                 const data = snap.val();
                 if(!data) return;
 
-                document.getElementById('view-title').innerText = data.title;
-                const container = document.getElementById('article-content');
-                container.innerHTML = ""; 
+                // Ставим заголовок
+                document.getElementById('title-display').innerText = data.title;
+                
+                const area = document.getElementById('content-display');
+                area.innerHTML = "";
 
-                // Если есть массив блоков (новый редактор)
+                // Проходим по всем блокам из базы
                 if(data.blocks && Array.isArray(data.blocks)) {
                     data.blocks.forEach(block => {
                         if(block.type === 'text' && block.content) {
-                            const div = document.createElement('div');
-                            div.className = "b-text";
-                            div.innerText = block.content;
-                            container.appendChild(div);
+                            const p = document.createElement('div');
+                            p.className = 'txt';
+                            p.innerText = block.content;
+                            area.appendChild(p);
                         } 
                         else if(block.type === 'image' && block.content) {
-                            const img = document.createElement('img');
-                            img.className = "b-img";
-                            img.src = block.content;
-                            container.appendChild(img);
+                            const wrap = document.createElement('div');
+                            wrap.className = 'img-wrap';
+                            wrap.innerHTML = `<img src="${block.content}" loading="lazy" onerror="this.parentElement.style.display='none'">`;
+                            area.appendChild(wrap);
                         }
                     });
-                } else {
-                    // Резервный вариант для старых статей
-                    const div = document.createElement('div');
-                    div.className = "b-text";
-                    div.innerText = data.content || data.textL || "Контент не найден";
-                    container.appendChild(div);
                 }
             });
-            trackView(id);
         }
     </script>
 </body>
