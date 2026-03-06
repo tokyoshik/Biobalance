@@ -57,12 +57,12 @@
         .nav-right a { text-decoration: none; color: #1d1d1f; font-size: 14px; font-weight: 600; transition: 0.3s; }
         .hidden { display: none !important; }
 
-        /* BENTO GRID */
+        /* HERO & BENTO */
         .content-wrapper { max-width: 1400px; margin: 0 auto; padding: 100px 5% 40px; }
         .hero { text-align: center; padding: 40px 0 60px; }
         .hero h1 { font-size: clamp(40px, 10vw, 100px); font-weight: 900; letter-spacing: -4px; line-height: 0.9; }
 
-        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 60px; }
 
         .bento-item { 
             background: var(--card); 
@@ -83,6 +83,40 @@
 
         .card-tag { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px; }
         .card-body h2 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 15px; line-height: 1.1; }
+
+        /* --- NEWS FEED SECTION --- */
+        .news-section { margin-top: 80px; }
+        .news-section h2 { font-size: 32px; font-weight: 900; margin-bottom: 30px; letter-spacing: -1px; }
+
+        .news-feed { display: flex; flex-direction: column; gap: 16px; }
+
+        .news-card { 
+            background: var(--card); 
+            border-radius: 24px; 
+            padding: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            text-decoration: none; 
+            color: inherit; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        .news-card:hover { background: #fafafa; transform: scale(1.01); }
+
+        .news-content { flex: 1; padding-right: 20px; }
+        .news-meta { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .news-title { font-size: 20px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+        .news-desc { font-size: 14px; color: #86868b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .news-image { 
+            width: 120px; height: 120px; 
+            border-radius: 16px; 
+            background-color: #eee; 
+            object-fit: cover; 
+            flex-shrink: 0; 
+        }
 
         /* FOOTER */
         .main-footer { padding: 80px 5% 40px; background: #fff; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 60px; }
@@ -105,6 +139,9 @@
         @media (max-width: 768px) { 
             .bento-grid { grid-template-columns: 1fr; } 
             .bento-item.main-feature { grid-column: span 1; } 
+            .news-card { padding: 16px; }
+            .news-image { width: 80px; height: 80px; }
+            .news-title { font-size: 17px; }
         }
     </style>
 </head>
@@ -117,7 +154,6 @@
     </a>
     <nav class="nav-right">
         <a href="about.html">О нас</a>
-        
         <a href="login.html" id="nav-login">Вход</a>
         <a href="profile.html" id="nav-profile" class="hidden">Профиль</a>
         <a href="admin.html" id="nav-admin" class="hidden" style="color: var(--accent);">Админка</a>
@@ -154,8 +190,31 @@
                 <p>Проектирование микробиома. Клетчатка как инструмент долголетия.</p>
             </div>
         </a>
+    </section>
 
-        <div id="dynamic-articles" style="display: contents;"></div>
+    <section class="news-section">
+        <h2>Лента новостей</h2>
+        <div class="news-feed" id="news-container">
+            
+            <a href="news-1.html" class="news-card">
+                <div class="news-content">
+                    <span class="news-meta">Последние новости • 5 мин. назад</span>
+                    <h3 class="news-title">Влияние глубокого сна на когнитивные способности</h3>
+                    <p class="news-desc">Новое исследование показывает, что фаза быстрого сна напрямую коррелирует со способностью мозга фильтровать токсины...</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1511295742364-9119171761c5?q=80&w=200&auto=format&fit=crop" alt="News" class="news-image">
+            </a>
+
+            <a href="news-2.html" class="news-card">
+                <div class="news-content">
+                    <span class="news-meta">Биохакинг • 1 час назад</span>
+                    <h3 class="news-title">Почему безвизовый режим важен для комьюнити</h3>
+                    <p class="news-desc">Разбор того, как свобода передвижения влияет на доступ к инновационным биолабораториям мира.</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1544027993-37dbfe43562a?q=80&w=200&auto=format&fit=crop" alt="News" class="news-image">
+            </a>
+
+        </div>
     </section>
 </main>
 
@@ -166,7 +225,7 @@
     </div>
     <div class="footer-bottom">
         <span>© 2026 HEALTHLOGIC</span>
-        <span>Apple & Samsung Aesthetic</span>
+        <span>System: Bio-OS v2.4</span>
     </div>
 </footer>
 
@@ -183,19 +242,16 @@
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Пользователь зашел
-            navLogin.classList.add('hidden');    // Скрываем "Вход"
-            navProfile.classList.remove('hidden'); // Показываем "Профиль"
-            navLogout.classList.remove('hidden');  // Показываем "Выход"
+            navLogin.classList.add('hidden');
+            navProfile.classList.remove('hidden');
+            navLogout.classList.remove('hidden');
 
-            // Проверка на админа (строго по email)
             if (user.email === adminEmail) {
                 navAdmin.classList.remove('hidden');
             } else {
                 navAdmin.classList.add('hidden');
             }
         } else {
-            // Пользователь не залогинен
             navLogin.classList.remove('hidden');
             navProfile.classList.add('hidden');
             navLogout.classList.add('hidden');
